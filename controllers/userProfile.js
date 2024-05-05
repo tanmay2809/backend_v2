@@ -56,5 +56,50 @@ const checkContactExists = async (req, res) => {
         });
     }
 };
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
 
-module.exports = { addUser,checkContactExists };
+    // Check if the user exists
+    const existingUser = await userProfile.findById(userId);
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Extract updated data from the request body
+    const {
+      
+      fullName,
+      gender,
+      
+      email,
+      dob,
+      foodPreference,
+      anniversary,
+    } = req.body;
+
+    // Update user details
+    existingUser.name = fullName 
+    existingUser.gender = gender 
+
+    existingUser.email = email 
+    existingUser.dob = dob 
+    existingUser.foodPreference = foodPreference ;
+    existingUser.anniversary = anniversary ;
+
+    // Save the updated user
+    const updatedUser = await existingUser.save();
+
+    res.status(200).json({
+      message: "User updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+module.exports = { addUser, updateUser,checkContactExists };
