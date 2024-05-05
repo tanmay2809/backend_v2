@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const restaurantDetails = require('../models/restaurantDetails');
 const restaurantLogin = require('../models/restaurantLogin');
 const categorySchema = require('../models/category');
+const menuItemSchema = require("../models/menuItem");
 
 const registerRestaurant = async (req, res) => {
     try {
