@@ -39,7 +39,32 @@ const addToFavorites = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+const getFavoriteMenuItems = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Find the user by ID
+    const user = await userProfile.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Fetch the favorite menu items for the user and populate the 'menu' field
+    const favoriteMenuItems = await MenuItem.find({
+      _id: { $in: user.favoriteMenuItems },
+    })
+
+    res.status(200).json({ favoriteMenuItems });
+  } catch (error) {
+    console.error("Error fetching favorite menu items:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
 
 module.exports = {
   addToFavorites,
+  getFavoriteMenuItems,
 };
