@@ -3,6 +3,10 @@ const restaurantDetails = require('../models/restaurantDetails');
 const restaurantLogin = require('../models/restaurantLogin');
 const categorySchema = require('../models/category');
 const menuItemSchema = require("../models/menuItem");
+const mailSender = require("../utils/mailSender");
+const { resetPasswordEmail } = require("../mail/template/resetPasswordEmail");
+const jwt = require("jsonwebtoken");
+const userProfile = require("../models/userProfile");
 
 const registerRestaurant = async (req, res) => {
     try {
@@ -73,7 +77,7 @@ const login = async(req,res) => {
                 error: "Invalid password" 
             });
         }
-
+        
         res.status(200).json({ 
             message: "Login successful" 
         });
@@ -143,7 +147,8 @@ const getRestaurantDetailsById = async (req, res) => {
       restaurant.menu.map(async (menuId, index) => {
         restaurant.menu[index] = await menuItemSchema
           .findById(menuId)
-          .populate("comments");
+          .populate({path:"comments",
+          populate:{path:"userId"}});
       })
     );
 
@@ -159,4 +164,90 @@ const getRestaurantDetailsById = async (req, res) => {
   }
 };
 
-module.exports = { registerRestaurant,login,getRestaurantDetailsById };
+
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const oldUser = await restaurantLogin.findOne({ email });
+    if (!oldUser) {
+      return res.json({ status: " restaurant Not Exists!!" });
+    }
+    const secret = process.env.JWT_SECRET ;
+    const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, {
+      expiresIn: "5m",
+    });
+    const link = `http://localhost:4000/api/reset-password/${oldUser._id}/${token}`;
+
+    const mail = await mailSender(
+      email,
+      "Greetings From Snackbae",
+      resetPasswordEmail(link)
+    );
+
+    console.log(link);
+    res.status(201).json({ status: "Password reset link sent successfully" });
+  } catch (error) {
+    console.error("Error in forgotPassword:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+const resetPasswordPage = async (req, res) => {
+  const { id, token } = req.params;
+  console.log(req.params);
+  const oldUser = await restaurantLogin.findOne({ _id: id });
+  if (!oldUser) {
+    return res.json({ status: "restaurant Not Exists!!" });
+  }
+  const secret = process.env.JWT_SECRET ;
+  try {
+    const verify = jwt.verify(token, secret);
+    // res.render("index", { email: verify.email, status: "Not Verified" });
+    res.send("Verified")
+  } catch (error) {
+    console.log(error);
+    res.send("Not Verified");
+  }
+};
+
+
+const resetPassword = async (req, res) => {
+  const { id, token } = req.params;
+  const { password } = req.body;
+
+  const oldUser = await restaurantLogin.findOne({ _id: id });
+  if (!oldUser) {
+    return res.json({ status: "restaurant Not Exists!!" });
+  }
+  const secret = JWT_SECRET ;
+  try {
+    const verify = jwt.verify(token, secret);
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    await restaurantLogin.updateOne(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          password: encryptedPassword,
+        },
+      }
+    );
+
+    res.render("index", { email: verify.email, status: "verified" });
+  } catch (error) {
+    console.log(error);
+    res.json({ status: "Something Went Wrong" });
+  }
+};
+
+module.exports = {
+  registerRestaurant,
+  login,
+  getRestaurantDetailsById,
+  forgotPassword,
+  resetPasswordPage,
+  resetPassword,
+};
