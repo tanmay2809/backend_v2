@@ -17,6 +17,7 @@ const userfavourite = require("./routes/userfavourites")
 const menuRecommendation = require('./routes/menuRecommendation');
 const comments = require('./routes/comment');
 const resProfile = require('./routes/restaurantProfile')
+const paymentoption = require("./routes/paymentoption")
 const PORT = process.env.PORT || 5000;
 
 //database connect
@@ -38,6 +39,7 @@ app.use("/api", resProfile);
 app.use('/api',restaurantRecommendation);
 app.use('/api',menuRecommendation);
 app.use('/api',comments);
+app.use("/api", paymentoption);
 
 app.listen(PORT, () => {
   console.log(`App is running at ${PORT}`);

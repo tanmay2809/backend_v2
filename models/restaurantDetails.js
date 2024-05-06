@@ -6,9 +6,9 @@ const restaurantDetails = new Schema({
     type: String,
     required: true,
   },
-//   image: {
-//     type: String,
-//   },
+  //   image: {
+  //     type: String,
+  //   },
   contact: {
     type: String,
     required: true,
@@ -19,6 +19,10 @@ const restaurantDetails = new Schema({
   profile: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "RestaurantProfile",
+  },
+  paymentOptions: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "PaymentOption",
   },
   category: [
     {
