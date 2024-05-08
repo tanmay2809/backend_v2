@@ -1,8 +1,6 @@
 const RestaurantProfile = require("../models/ResturantProfile");
 const RestaurantDetails = require("../models/restaurantDetails");
 
-
-
 const updateRestaurantProfile = async (req, res) => {
   try {
     const { id } = req.params; // Extract restaurant details ID from request parameters
@@ -67,7 +65,7 @@ const updateRestaurantProfile = async (req, res) => {
   }
 };
 
-const getRestaurantProfileById= async (req, res) => {
+const getRestaurantProfileById = async (req, res) => {
   try {
     const { id } = req.params; // Extract restaurant details ID from request parameters
 
@@ -95,8 +93,66 @@ const getRestaurantProfileById= async (req, res) => {
   }
 };
 
+// const addRestaurantProfile = async (req, res) => {
+//   try {
+//     const { id } = req.params; // Extract restaurant details ID from request parameters
 
+//     // Find the restaurant details by ID
+//     let restaurantDetails = await RestaurantDetails.findById(id);
 
+//     if (!restaurantDetails) {
+//       return res.status(404).json({ error: "Restaurant details not found" });
+//     }
+
+//     // Extract necessary data from the request body
+//     const {
+//       name,
+//       image,
+//       email,
+//       contactNo,
+//       contactPerson,
+//       outletAddress,
+//       businessType,
+//       cuisine,
+//       instaLink,
+//       fssaiLicenseNo,
+//     } = req.body;
+
+//     // Create a new restaurant profile
+//     const restaurantProfile = new RestaurantProfile({
+//       name,
+//       image,
+//       email,
+//       contactNo,
+//       contactPerson,
+//       outletAddress,
+//       businessType,
+//       cuisine,
+//       instaLink,
+//       fssaiLicenseNo,
+//     });
+
+//     // Save the restaurant profile to the database
+//     await restaurantProfile.save();
+
+//     // Update the restaurant details with the new profile reference
+//     restaurantDetails.profile = restaurantProfile._id;
+//     restaurantDetails.name = name;
+//     restaurantDetails.contact=contactNo;
+//     restaurantDetails.cuisineServed = cuisine;
+//     restaurantDetails = await restaurantDetails.save({ new: true });
+
+//     // Send a success response
+//     res.status(201).json({
+//       message: "Restaurant profile added successfully",
+//       restaurantProfile,
+//     });
+//   } catch (error) {
+//     // Handle errors
+//     console.error("Error adding restaurant profile:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 const addRestaurantProfile = async (req, res) => {
   try {
     const { id } = req.params; // Extract restaurant details ID from request parameters
@@ -107,43 +163,43 @@ const addRestaurantProfile = async (req, res) => {
     if (!restaurantDetails) {
       return res.status(404).json({ error: "Restaurant details not found" });
     }
-
+    console.log(req.body.image);
     // Extract necessary data from the request body
     const {
-      name,
-      image,
-      email,
-      contactNo,
+      brandName,
+      emailAddress,
+      contactNumber,
       contactPerson,
       outletAddress,
       businessType,
-      cuisine,
-      instaLink,
-      fssaiLicenseNo,
+      cuisinesServed,
+      instagramLink,
+      fssaiLicenceNumber,
+      image,
     } = req.body;
 
     // Create a new restaurant profile
     const restaurantProfile = new RestaurantProfile({
-      name,
+      name: brandName,
       image,
-      email,
-      contactNo,
+      email: emailAddress,
+      contactNo: contactNumber,
       contactPerson,
       outletAddress,
       businessType,
-      cuisine,
-      instaLink,
-      fssaiLicenseNo,
+      cuisine: cuisinesServed,
+      instaLink: instagramLink,
+      fssaiLicenseNo: fssaiLicenceNumber,
     });
 
     // Save the restaurant profile to the database
     await restaurantProfile.save();
 
-    // Update the restaurant details with the new profile reference
+    // Update the restaurant details with the new profile reference and other data
     restaurantDetails.profile = restaurantProfile._id;
-    restaurantDetails.name = name;
-    restaurantDetails.contact=contactNo;
-    restaurantDetails.cuisineServed = cuisine;
+    restaurantDetails.name = brandName;
+    restaurantDetails.contact = contactNumber;
+    restaurantDetails.cuisineServed = cuisinesServed;
     restaurantDetails = await restaurantDetails.save({ new: true });
 
     // Send a success response
@@ -157,7 +213,6 @@ const addRestaurantProfile = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 module.exports = {
   addRestaurantProfile,

@@ -4,14 +4,14 @@ const Schema = mongoose.Schema;
 const restaurantDetails = new Schema({
   name: {
     type: String,
-    required: true,
+    // required: true,
   },
   //   image: {
   //     type: String,
   //   },
   contact: {
     type: String,
-    required: true,
+    // required: true,
   },
   cuisineServed: {
     type: [String],
@@ -49,8 +49,8 @@ const restaurantDetails = new Schema({
 });
 
 const RestaurantDetails = mongoose.model(
-    "restaurantDetails",
-    restaurantDetails
+  "restaurantDetails",
+  restaurantDetails
 );
 
 module.exports = RestaurantDetails;

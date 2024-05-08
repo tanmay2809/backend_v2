@@ -1,8 +1,8 @@
 const RestaurantDetails = require("../models/restaurantDetails");
-const PaymentOption = require("../models/paymentOption")
+const PaymentOption = require("../models/paymentOption");
 const createPaymentOption = async (req, res) => {
   try {
-    const { method, accountNo, ifscCode, beneficiaryName, upiId, upiNumber } =
+    const { method, bankAccount, ifscCode, BenificeiryName, UpiId, UpiNumber } =
       req.body;
 
     // Validate method
@@ -13,7 +13,7 @@ const createPaymentOption = async (req, res) => {
     // Validate bank transfer details if method is bank_transfer
     if (
       method === "bank_transfer" &&
-      (!accountNo || !ifscCode || !beneficiaryName)
+      (!bankAccount || !ifscCode || !BenificeiryName)
     ) {
       return res
         .status(400)
@@ -21,7 +21,7 @@ const createPaymentOption = async (req, res) => {
     }
 
     // Validate UPI details if method is upi
-    if (method === "upi" && (!upiId || !upiNumber)) {
+    if (method === "upi" && (!UpiId || !UpiNumber)) {
       return res.status(400).json({ error: "Incomplete UPI details" });
     }
 
@@ -29,9 +29,14 @@ const createPaymentOption = async (req, res) => {
       method,
       bankTransfer:
         method === "bank_transfer"
-          ? { accountNo, ifscCode, beneficiaryName }
+          ? {
+              accountNo: bankAccount,
+              ifscCode,
+              beneficiaryName: BenificeiryName,
+            }
           : undefined,
-      upi: method === "upi" ? { upiId, upiNumber } : undefined,
+      upi:
+        method === "upi" ? { upiId: UpiId, upiNumber: UpiNumber } : undefined,
     });
 
     const savedPaymentOption = await newPaymentOption.save();
@@ -46,8 +51,8 @@ const createPaymentOption = async (req, res) => {
       return res.status(404).json({ error: "Restaurant details not found" });
     }
 
-    restaurantDetails.paymentOptions.push(savedPaymentOption._id);
-    await restaurantDetails.save();
+    restaurantDetails.paymentOptions = savedPaymentOption._id;
+    await restaurantDetails.save({ new: true });
 
     res.status(201).json({
       message:
@@ -130,8 +135,6 @@ const updatePaymentOptionsById = async (req, res) => {
   }
 };
 
-
- 
 module.exports = {
   createPaymentOption,
   getPaymentOptionsId,

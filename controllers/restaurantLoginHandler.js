@@ -9,86 +9,88 @@ const jwt = require("jsonwebtoken");
 const userProfile = require("../models/userProfile");
 
 const registerRestaurant = async (req, res) => {
-    try {
-        const { name, image, contact, cuisineServed, email, password } = req.body;
+  try {
+    const { brandName, image, contactNumber, businessType, email, password } =
+      req.body;
 
-        const existingRestaurant = await restaurantLogin.findOne({ email });
-        if (existingRestaurant) {
-            return res.status(400).json({ 
-                error: "Email is already registered" 
-            });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newRestaurantDetails = new restaurantDetails({
-            name,
-            image,
-            contact,
-            cuisineServed
-        });
-
-        const savedRestaurantDetails = await newRestaurantDetails.save();
-
-        const newRestaurantLogin = new restaurantLogin({
-            details: savedRestaurantDetails._id,
-            email,
-            password: hashedPassword
-        });
-
-        const savedRestaurantLogin = await newRestaurantLogin.save();
-
-        res.status(201).json({ 
-            message: "Restaurant registered successfully", 
-            restaurantDetails: savedRestaurantDetails, 
-            restaurantLogin: savedRestaurantLogin 
-        });
-
-        // const savedRestaurantLogin = await newRestaurantLogin.save();
-
-        // await savedRestaurantLogin.populate('details').execPopulate();
-
-        // res.status(201).json({ 
-        //     message: "Restaurant registered successfully", 
-        //     restaurantLogin: savedRestaurantLogin 
-        // });
-    } catch (error) {
-        console.error("Error registering restaurant:", error);
-        res.status(500).json({ 
-            error: "Internal server error" 
-        });
+    const existingRestaurant = await restaurantLogin.findOne({ email });
+    if (existingRestaurant) {
+      return res.status(400).json({
+        error: "Email is already registered",
+      });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newRestaurantDetails = new restaurantDetails({
+      name: brandName,
+      image,
+      contact: contactNumber,
+      cuisineServed: businessType,
+    });
+
+    const savedRestaurantDetails = await newRestaurantDetails.save();
+
+    const newRestaurantLogin = new restaurantLogin({
+      details: savedRestaurantDetails._id,
+      email,
+      password: hashedPassword,
+    });
+
+    const savedRestaurantLogin = await newRestaurantLogin.save();
+
+    res.status(201).json({
+      message: "Restaurant registered successfully",
+      restaurantDetails: savedRestaurantDetails._id,
+      restaurantLogin: savedRestaurantLogin,
+    });
+
+    // const savedRestaurantLogin = await newRestaurantLogin.save();
+
+    // await savedRestaurantLogin.populate('details').execPopulate();
+
+    // res.status(201).json({
+    //     message: "Restaurant registered successfully",
+    //     restaurantLogin: savedRestaurantLogin
+    // });
+  } catch (error) {
+    console.error("Error registering restaurant:", error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
 };
 
-const login = async(req,res) => {
-    try {
-        const { email, password } = req.body;
+const login = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { email, password } = req.body;
 
-        const restaurant = await restaurantLogin.findOne({ email });
-        if (!restaurant) {
-            return res.status(401).json({ 
-                error: "Restaurant not registered" 
-            });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, restaurant.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ 
-                error: "Invalid password" 
-            });
-        }
-        
-        res.status(200).json({ 
-            message: "Login successful" 
-        });
-
-    } catch (error) {
-        console.error("Error logging in restaurant:", error);
-        res.status(500).json({ 
-            error: "Internal server error" 
-        });
+    const restaurant = await restaurantLogin.findOne({ email });
+    if (!restaurant) {
+      return res.status(401).json({
+        error: "Restaurant not registered",
+      });
     }
-}
+
+    const passwordMatch = await bcrypt.compare(password, restaurant.password);
+    if (!passwordMatch) {
+      return res.status(401).json({
+        error: "Invalid password",
+      });
+    }
+
+    res.status(200).json({
+      message: "Login successful",
+      details: restaurant.details._id,
+    });
+  } catch (error) {
+    console.error("Error logging in restaurant:", error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
 
 // const getRestaurantDetailsById = async (req, res) => {
 //     try {
@@ -119,8 +121,7 @@ const getRestaurantDetailsById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const restaurant = await restaurantDetails
-      .findById(id)
+    const restaurant = await restaurantDetails.findById(id)
       .populate("category")
       .populate("menu");
 

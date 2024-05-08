@@ -1,15 +1,20 @@
 const express = require("express");
 const router = express.Router();
+
 const {
-  addRestaurantProfile,
-  getRestaurantProfileById,
-  updateRestaurantProfile,
-} = require("../controllers/resProfile");
+  registerRestaurant,
+  login,
+  getRestaurantDetailsById,
+  forgotPassword,
+  resetPasswordPage,
+  resetPassword,
+} = require("../controllers/restaurantLoginHandler");
 
-// Define route to add a new restaurant profile
-router.post("/resProfile/:id", addRestaurantProfile);
-router.get("/resProfile/:id", getRestaurantProfileById);
-router.put("/resProfile/:id", updateRestaurantProfile);
-
+router.post("/regsiterRestaurant", registerRestaurant);
+router.post("/reset-password/:id/:token", resetPassword);
+router.post("/forgot-password", forgotPassword);
+router.get("/reset-password/:id/:token", resetPasswordPage);
+router.post("/restaurantLogin", login);
+router.get("/getRestaurantDetails/:id", getRestaurantDetailsById);
 
 module.exports = router;
