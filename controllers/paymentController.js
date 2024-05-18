@@ -94,9 +94,10 @@ const savepayment = async (amount, id, razorpay_payment_id ,userId, res) => {
 
   const payment = new Payment({
     amount: amount,
-   mode:payment_mode.method,
-    user: userId,
-});
+    mode: payment_mode.method,
+    userId:userId,
+    restaurant:id,
+  });
   await payment.save();
   const reestaurant = await RestaurantDetails.findOneAndUpdate(
     { _id: id },
