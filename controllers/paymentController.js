@@ -71,23 +71,25 @@ exports.verifyPaymentForRestaurant = async (req, res) => {
 };
 
 const savepayment = async (amount, id, razorpay_payment_id ,userId, res) => {
-    let paymentmode;
-    let config = {
-      method: "get",
-      maxBodyLength: Infinity,
-      url: `https://api.razorpay.com/v1/payments/${razorpay_payment_id}`,
-      headers: {},
-    };
+    // let paymentmode;
+    // let config = {
+    //   method: "get",
+    //   maxBodyLength: Infinity,
+    //   url: `https://api.razorpay.com/v1/payments/${razorpay_payment_id}`,
+    //   headers: {},
+    // };
 
-    axios
-      .request(config)
-      .then((response) => {
-        console.log(JSON.stringify(response.data));
-        paymentmode = JSON.stringify(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    // axios
+    //   .request(config)
+    //   .then((response) => {
+    //     console.log(JSON.stringify(response.data));
+    //     paymentmode = JSON.stringify(response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
+    
+      let payment_mode = instance.payments.fetch(razorpay_payment_id);
 
   const payment = new Payment({
     amount: amount,
