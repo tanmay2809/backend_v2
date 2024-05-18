@@ -37,7 +37,7 @@ exports.verifyPaymentForRestaurant = async (req, res) => {
    const { id, amount, userId } = req.body.bodydata;
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-      req.body;
+      req.body.bodydata;
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res
         .status(200)
