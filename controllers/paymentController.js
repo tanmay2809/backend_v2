@@ -3,7 +3,6 @@ const RestaurantDetails = require("../models/restaurantDetails");
 const Payment = require("../models/paymentModel");
 const shortid = require("shortid");
 const crypto = require("crypto");
-
 const axios = require("axios")
 
 
@@ -35,7 +34,7 @@ exports.capturePaymentForRestaurant = async (req, res) => {
 
 exports.verifyPaymentForRestaurant = async (req, res) => {
   console.log(req.body);
-   const { id, amount, userId } = req.body;
+   const { id, amount, userId } = req.body.bodydata;
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       req.body;
