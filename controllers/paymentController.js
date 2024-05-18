@@ -90,18 +90,19 @@ const savepayment = async (amount, id, razorpay_payment_id ,userId, res) => {
     //   });
     
       let payment_mode = instance.payments.fetch(razorpay_payment_id);
+      console.log(payment_mode)
 
-  const payment = new Payment({
-    amount: amount,
-    mode:paymentmode,
-    user: userId,
-});
-  await payment.save();
-  const reestaurant = await RestaurantDetails.findOneAndUpdate(
-    { _id: id },
-    { $push: { payments: payment._id } },
-    { new: true } // Return the updated document
-  );
+//   const payment = new Payment({
+//     amount: amount,
+//     // mode:paymentmode,
+//     user: userId,
+// });
+//   await payment.save();
+//   const reestaurant = await RestaurantDetails.findOneAndUpdate(
+//     { _id: id },
+//     { $push: { payments: payment._id } },
+//     { new: true } // Return the updated document
+//   );
 };
 
 exports.getPaymentsByRestaurant = async (req, res) => {
