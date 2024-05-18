@@ -123,7 +123,8 @@ const getRestaurantDetailsById = async (req, res) => {
 
     const restaurant = await restaurantDetails.findById(id)
       .populate("category")
-      .populate("menu");
+      .populate("menu")
+      .populate("totalCustomersData");
 
     if (!restaurant) {
       return res.status(404).json({

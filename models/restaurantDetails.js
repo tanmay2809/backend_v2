@@ -46,6 +46,26 @@ const restaurantDetails = new Schema({
     type: Number,
     default: 0,
   },
+  totalCustomersData : [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "analytics",
+    },
+  ],
+  returningCustomerData : [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "userProfile",
+    },
+  ],
+  totalCustomers : {
+    type:Number,
+    dafault : 0,
+  },
+  returningCustomer : {
+    type: Number,
+    default : 0,
+  }
 });
 
 const RestaurantDetails = mongoose.model(
