@@ -46,7 +46,7 @@ const userProfile = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "menuItem",
     },
-  ],
+  ]
 });
 
 const user = mongoose.model("userProfile",userProfile);
