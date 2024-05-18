@@ -3,11 +3,14 @@ const analytics = require('../models/analytics');
 const restaurantDetails = require('../models/restaurantDetails');
 
 const updateRating = async (req, res) => {
+    
     try {
+
+
         const { rated,resId } = req.body;
         const userId = req.params.userId;
         const menuId = req.params.menuId;
-
+        
         const menu = await menuItem.findById(menuId);
 
         if (rated === 'mustTry') {

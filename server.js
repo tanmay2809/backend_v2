@@ -17,6 +17,7 @@ const userfavourite = require("./routes/userfavourites")
 const menuRecommendation = require('./routes/menuRecommendation');
 const comments = require('./routes/comment');
 const resProfile = require('./routes/restaurantProfile')
+const payment = require("./routes/paymentroute")
 const paymentoption = require("./routes/paymentoption")
 const PORT = process.env.PORT || 5000;
 
@@ -27,6 +28,8 @@ dbconnect();
 app.use(cors());
 app.use(express.json());
 
+
+app.use("/api/", payment);
 app.use("/api/", userfavourite);
 app.use('/api/', fileUpload)
 app.use("/api/", becomePartner);
