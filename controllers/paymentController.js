@@ -89,7 +89,7 @@ const savepayment = async (amount, id, razorpay_payment_id ,userId, res) => {
     //     console.log(error);
     //   });
     
-      let payment_mode = instance.payments.fetch(razorpay_payment_id);
+      let payment_mode = await instance.payments.fetch(razorpay_payment_id);
       console.log(payment_mode)
 
 //   const payment = new Payment({
