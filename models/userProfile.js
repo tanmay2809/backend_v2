@@ -5,9 +5,9 @@ const userProfile = new mongoose.Schema({
     type: String,
     // required: true,
   },
-  profileImage: {
-    type: String,
-  },
+  // profileImage: {
+  //   type: String,
+  // },
   gender: {
     type: String,
     // required: true,
