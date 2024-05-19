@@ -2,11 +2,11 @@ const userProfile = require('../models/userProfile');
 
 const addUser = async(req,res) => {
     try {
-        const { profileImage, fullName, gender, contact, email, dob ,foodPreference, anniversary } = req.body;
+        const { name, gender, contact, email, dob ,foodPreference, anniversary } = req.body;
 
         const newUser = new userProfile({
-            profileImage,
-            name : fullName,
+        
+            name ,
             gender,
             contact,
             email,
@@ -69,7 +69,7 @@ const updateUser = async (req, res) => {
     // Extract updated data from the request body
     const {
       
-      fullName,
+      name,
       gender,
       
       email,
@@ -79,7 +79,7 @@ const updateUser = async (req, res) => {
     } = req.body;
 
     // Update user details
-    existingUser.name = fullName 
+    existingUser.name = name 
     existingUser.gender = gender 
 
     existingUser.email = email 
