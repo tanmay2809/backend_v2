@@ -15,7 +15,7 @@ const menuItem = new mongoose.Schema({
         type:String,
         required : true,
     },
-    veg : {
+    veg: {
         type: String,
         required : true,
     },

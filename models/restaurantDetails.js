@@ -68,6 +68,12 @@ const restaurantDetails = new Schema({
     type: Number,
     dafault: 0,
   },
+  happyHourOffers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HappyHour",
+    },
+  ],
   returningCustomer: {
     type: Number,
     default: 0,

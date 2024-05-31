@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 
 const cors = require("cors");
+
 const { dbconnect } = require("./config/dbConnect");
 const dotenv = require("dotenv");
 require("dotenv").config();
@@ -43,6 +44,9 @@ app.use('/api',restaurantRecommendation);
 app.use('/api',menuRecommendation);
 app.use('/api',comments);
 app.use("/api", paymentoption);
+
+
+
 
 app.listen(PORT, () => {
   console.log(`App is running at ${PORT}`);

@@ -18,6 +18,7 @@ exports.capturePaymentForRestaurant = async (req, res) => {
       amount: amount * 100,
       currency: "INR",
       receipt: shortid.generate(),
+
     };
 
     const order = await instance.orders.create(options);

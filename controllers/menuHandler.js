@@ -73,27 +73,37 @@ const toggleMenuStatus = async(req,res) => {
 
 const updateMenu = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { name, description, price } = req.body;
+      const { id } = req.params;
+      const { name, description, price, image, veg } = req.body;
 
-        let updatedMenu = await menuItem.findById(id);
+      const updates = {};
 
-        if (name) updatedMenu.name = name;
-        if (description) updatedMenu.description = description;
-        if (price) updatedMenu.price = price;
+      if (name) updates.name = name;
+        if (description) updates.description = description;
+        if (price) updates.price = price;
+         if (image) updates.image = image;
+          if (veg) updates.vpdates
 
-        updatedMenu = await updatedMenu.save();
+      const updatedMenu = await menuItem.findByIdAndUpdate(id, updates, {
+        new: true,
+        runValidators: true,
+      });
 
-        res.status(200).json({ 
-            message: "Menu updated successfully", 
-            menu: updatedMenu 
+      if (!updatedMenu) {
+        return res.status(404).json({
+          error: "Menu item not found",
         });
+      }
 
+      res.status(200).json({
+        message: "Menu updated successfully",
+        menu: updatedMenu,
+      });
     } catch (error) {
-        console.error("Error updating menu:", error);
-        res.status(500).json({ 
-            error: "Internal server error" 
-        });
+      console.error("Error updating menu:", error);
+      res.status(500).json({
+        error: "Internal server error",
+      });
     }
 };
 
@@ -188,5 +198,52 @@ const getTop5 = async(req,res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+const deleteMenu = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-module.exports = { addMenu,toggleMenuStatus,updateMenu,getMenuByCategory,getMenuById,searchMenu,getTop5 };
+    // Find the menu item by its ID and delete it
+    const deletedMenu = await menuItem.findByIdAndDelete(id);
+
+    if (!deletedMenu) {
+      return res.status(404).json({ error: "Menu item not found" });
+    }
+
+    // Remove the deleted menu item from the associated category
+    const updatedCategory = await categoryModel.findByIdAndUpdate(
+      deletedMenu.category,
+      { $pull: { menuItems: deletedMenu._id } },
+      { new: true }
+    );
+
+    // Remove the deleted menu item from the associated restaurant details
+    const updatedResDetails = await restaurantDetails.findByIdAndUpdate(
+      deletedMenu.restaurant,
+      { $pull: { menu: deletedMenu._id } },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Menu deleted successfully",
+      deletedMenu,
+      updatedCategory,
+      updatedRestaurantDetails: updatedResDetails,
+    });
+  } catch (error) {
+    console.error("Error deleting menu:", error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+module.exports = {
+  addMenu,
+  toggleMenuStatus,
+  updateMenu,
+  getMenuByCategory,
+  getMenuById,
+  searchMenu,
+  getTop5,
+  deleteMenu,
+};
