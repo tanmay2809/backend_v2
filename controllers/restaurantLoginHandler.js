@@ -139,7 +139,8 @@ const getRestaurantDetailsById = async (req, res) => {
           .findById(categoryId._id)
           .populate({
             path: "menuItems",
-            populate: { path: "comments" }, // Populate the comments field within menuItems
+            populate: { path: "comments" },
+            populate: { path: "Pincomments" }, // Populate the comments field within menuItems
           });
       })
     );
