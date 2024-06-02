@@ -20,7 +20,7 @@ const addMenu = async (req, res) => {
           variants3Price,
         } = req.body;
 
-      
+        
 
         // Create the menu item
         const newMenu = new menuItem({
@@ -97,15 +97,33 @@ const toggleMenuStatus = async(req,res) => {
 const updateMenu = async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, description, price, image, veg } = req.body;
+      const {
+        name,
+        description,
+        price,
+        image,
+        veg,
+        variants1,
+        variants1Price,
+        variants2,
+        variants2Price,
+        variants3,
+        variants3Price,
+      } = req.body;
 
       const updates = {};
 
       if (name) updates.name = name;
-        if (description) updates.description = description;
-        if (price) updates.price = price;
-         if (image) updates.image = image;
-          if (veg) updates.vpdates
+      if (description) updates.description = description;
+      if (price) updates.price = price;
+      if (image) updates.image = image;
+      if (veg) updates.veg = veg;
+      if (variants1) updates.variants1 = variants1;
+      if (variants1Price) updates.variants1Price = variants1Price;
+      if (variants2) updates.variants2 = variants2;
+      if (variants2Price) updates.variants2Price = variants2Price;
+      if (variants3) updates.variants3 = variants3;
+      if (variants3Price) updates.variants3Price = variants3Price;
 
       const updatedMenu = await menuItem.findByIdAndUpdate(id, updates, {
         new: true,
