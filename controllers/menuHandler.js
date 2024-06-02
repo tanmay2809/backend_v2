@@ -131,7 +131,7 @@ const getMenuById = async(req,res) => {
         const menu = await menuItem
           .findById(menuId)
           .populate("comments")
-          .populate("pinComments");
+          .populate("Pincomments");
 
         if (!menu) {
             return res.status(404).json({ 
