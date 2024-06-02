@@ -109,6 +109,7 @@ const updateMenu = async (req, res) => {
         variants2Price,
         variants3,
         variants3Price,
+        category,
       } = req.body;
 
       const updates = {};
@@ -124,6 +125,7 @@ const updateMenu = async (req, res) => {
       if (variants2Price) updates.variants2Price = variants2Price;
       if (variants3) updates.variants3 = variants3;
       if (variants3Price) updates.variants3Price = variants3Price;
+      if (category) updates.category = category;
 
       const updatedMenu = await menuItem.findByIdAndUpdate(id, updates, {
         new: true,
