@@ -111,7 +111,7 @@ const getMenuByCategory = async(req,res) => {
     try{
         const {id} = req.params;
 
-        const category = await categoryModel.findById(id).populate('menuItems').exec();
+        const category = await categoryModel.findById(id).populate('menuItems').populate('pinComments').exec();
 
         if (!category) {
             return res.status(404).json({ message: 'Category not found' });
@@ -157,11 +157,13 @@ const searchMenu = async(req,res) => {
         const { restaurantId } = req.params;
         const searchValue = req.params.search; 
 
-        const restaurant = await restaurantDetails.findById(restaurantId).populate({
-            path:"menu",
-            populate:{ path: "comments" }
-    });
-
+        const restaurant = await Restaurant.findById(restaurantId).populate({
+          path: "menu",
+          populate: [
+            { path: "comments",  },
+            { path: "Pincomments",  },
+          ],
+        });
         if (!restaurant) {
             return res.status(404).json({ error: 'Restaurant not found' });
         }
@@ -236,6 +238,10 @@ const deleteMenu = async (req, res) => {
     });
   }
 };
+
+
+
+
 
 module.exports = {
   addMenu,

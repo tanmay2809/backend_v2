@@ -91,6 +91,7 @@ const toggleActiveStatusById = async(req,res) => {
     }
 };
 
+
 const getCategory = async(req,res) => {
     try{
         const id = req.params.id;
@@ -109,4 +110,49 @@ const getCategory = async(req,res) => {
     }
 }
 
-module.exports = { getCategory,addCategory,deleteCategory,toggleActiveStatusById };
+const updateCategory = async(req , res)=>{
+    try {
+
+        const { restaurantId } = req.params;
+        console.log(restaurantId);
+        const { categories } = req.body; // Array of category objects
+        //  console.log(req.body[0]._id)
+            let cgtegoryy=[];
+            cgtegoryy=req.body;
+
+       
+
+        //Extract category IDs from the provided categories
+
+         const categoryIds = [];
+         for (const category of cgtegoryy) {
+           if (category && category._id) {
+            
+             categoryIds.push(category._id);
+           }
+         }
+        console.log(categoryIds)
+              await restaurantDetails.findByIdAndUpdate(restaurantId, {
+                $unset: { category: "" },
+              });
+
+        // Find the restaurant by its ID and update the category order
+        const restaurant = await restaurantDetails.findByIdAndUpdate(
+          restaurantId,
+          { $push: { category: { $each: categoryIds } } },
+          { new: true }
+        );
+
+        if (!restaurant) {
+          return res.status(404).json({ message: "Restaurant not found" });
+        }
+
+       
+      
+      res.status(200).json({ message: "Order updated" });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = { getCategory,addCategory,deleteCategory ,  updateCategory ,toggleActiveStatusById };

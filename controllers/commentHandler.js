@@ -101,4 +101,31 @@ const addComment = async (req, res) => {
     }
 };
 
-module.exports = { addComment };
+const pinComment = async(req , res) =>{
+
+    try {
+      
+      const { menuId, commentId } = req.params;
+
+      
+      const menu = await menuItem.findByIdAndUpdate(
+        menuId,
+        { $push: { Pincomments: commentId } },
+        { new: true }
+      );
+
+      if (!menu) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+
+      res.status(200).json({
+        message:"comment pined sucessfully",
+        data:menu
+            });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "An error occurred", error });
+    }
+}
+
+module.exports = { addComment, pinComment };
