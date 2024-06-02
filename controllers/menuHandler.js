@@ -157,7 +157,7 @@ const searchMenu = async(req,res) => {
         const { restaurantId } = req.params;
         const searchValue = req.params.search; 
 
-        const restaurant = await Restaurant.findById(restaurantId).populate({
+        const restaurant = await restaurantDetails.findById(restaurantId).populate({
           path: "menu",
           populate: [
             { path: "comments",  },
