@@ -23,6 +23,24 @@ const menuItem = new mongoose.Schema({
     type: String,
     required: true,
   },
+  variants1: {
+    type: String,
+  },
+  variants2: {
+    type: String,
+  },
+  variants3: {
+    type: String,
+  },
+  variants1Price: {
+    type: Number,
+  },
+  variants2Price: {
+    type: Number,
+  },
+  variants3Price: {
+    type: Number,
+  },
   active: {
     type: Boolean,
     default: true,

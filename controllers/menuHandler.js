@@ -5,16 +5,39 @@ const comments = require('../models/comments');
 const addMenu = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name,image, description, price, veg, category } = req.body;
+        const {
+          name,
+          image,
+          description,
+          price,
+          veg,
+          category,
+          variants1,
+          variants1Price,
+          variants2,
+          variants2Price,
+          variants3,
+          variants3Price,
+        } = req.body;
 
+      
+
+        // Create the menu item
         const newMenu = new menuItem({
-            name,
-            image,
-            description,
-            price,
-            veg,
-            category
+          name,
+          image,
+          description,
+          price,
+          veg,
+          category,
+          variants1,
+          variants1Price,
+          variants2,
+          variants2Price,
+          variants3,
+          variants3Price,
         });
+
 
         const savedMenu = await newMenu.save();
 
