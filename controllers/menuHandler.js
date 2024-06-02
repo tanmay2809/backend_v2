@@ -128,7 +128,10 @@ const getMenuById = async(req,res) => {
     try {
         const menuId = req.params.id;
 
-        const menu = await menuItem.findById(menuId).populate('comments');
+        const menu = await menuItem
+          .findById(menuId)
+          .populate("comments")
+          .populate("pinComments");
 
         if (!menu) {
             return res.status(404).json({ 
