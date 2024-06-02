@@ -20,6 +20,9 @@ const comments = new mongoose.Schema({
     rated : {
         type:String,
     },
+    Active:{
+        type:String,
+    },
     createdAt: {
         type: Date,
         default: Date.now(),
