@@ -110,9 +110,21 @@ const updateMenu = async (req, res) => {
         variants3,
         variants3Price,
         category,
+        itemCategory
       } = req.body;
 
       const updates = {};
+       if (itemCategory && category && itemCategory !== category) {
+         // Remove the item from the old category and add it to the new category
+         await Promise.all([
+           categoryModel.findByIdAndUpdate(itemCategory, {
+             $pull: { menuItems: id },
+           }),
+           categoryModel.findByIdAndUpdate(category, {
+             $addToSet: { menuItems: id },
+           }),
+         ]);
+       }
 
       if (name) updates.name = name;
       if (description) updates.description = description;
