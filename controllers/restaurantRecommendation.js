@@ -1,6 +1,7 @@
 const restaurantDetails = require('../models/restaurantDetails');
 const userProfile =  require('../models/userProfile');
 const analytics = require('../models/analytics');
+const customerRecord = require('../models/customerRecord');
 
 const toggleRecommendation =  async(req,res) => {
     try{
@@ -95,6 +96,27 @@ const toggleRecommendation =  async(req,res) => {
                 rest.returningCustomer = rest.returningCustomerData.length;
                 await rest.save();
             }
+        }
+
+        //for customer Record
+        const date1 = new Date();
+        const customer = await customerRecord.findOne({ userId });
+        if (customer) {
+            const date2 = new Date(customer.createdAt);
+            if (!(date1.getFullYear() === date2.getFullYear() &&
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate())) {
+                customer.count += 1;
+                await customer.save();
+            }
+        }
+        else {
+            const newRecord = await customerRecord.create({ userId : userId, count: 1 });
+            const res = await restaurantDetails.findOneAndUpdate(
+                { _id : restaurantId },
+                { $push: { customerData: newRecord._id } },
+                { new: true }
+              );
         }
 
 

@@ -1,6 +1,7 @@
 const menuItem = require('../models/menuItem');
 const analytics = require('../models/analytics');
 const restaurantDetails = require('../models/restaurantDetails');
+const customerRecord = require('../models/customerRecord');
 
 const updateRating = async (req, res) => {
     
@@ -102,6 +103,27 @@ const updateRating = async (req, res) => {
                 restaurant.returningCustomer = restaurant.returningCustomerData.length;
                 await restaurant.save();
             }
+        }
+
+        //for customer Record
+        const date1 = new Date();
+        const customer = await customerRecord.findOne({ userId });
+        if (customer) {
+            const date2 = new Date(customer.createdAt);
+            if (!(date1.getFullYear() === date2.getFullYear() &&
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate())) {
+                customer.count += 1;
+                await customer.save();
+            }
+        }
+        else {
+            const newRecord = await customerRecord.create({ userId : userId, count: 1 });
+            const res = await restaurantDetails.findOneAndUpdate(
+                { _id : resId },
+                { $push: { customerData: newRecord._id } },
+                { new: true }
+              );
         }
 
         res.status(200).json({ 

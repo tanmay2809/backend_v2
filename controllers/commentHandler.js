@@ -2,6 +2,7 @@ const comments = require('../models/comments');
 const menuItem = require('../models/menuItem');
 const analytics = require('../models/analytics');
 const restaurantDetails = require('../models/restaurantDetails');
+const customerRecord = require('../models/customerRecord');
 
 const addComment = async (req, res) => {
     try {
@@ -63,14 +64,11 @@ const addComment = async (req, res) => {
         }
 
         const x = restaurant.returningCustomerData.includes(userId);
-        if (!x)
-        {
+        if (!x) {
             //check krna hai ki vo user id present hai ki nahi totalCustomerData mein
             const match = restaurant.totalCustomersData.find(analyticsEntry => {
-                if(analyticsEntry.userId === userId)
-                {
-                    if(analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10))
-                    {
+                if (analyticsEntry.userId === userId) {
+                    if (analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)) {
                         return false;
                     }
                     return true;
@@ -86,7 +84,28 @@ const addComment = async (req, res) => {
                 await restaurant.save();
             }
         }
-    
+
+        //for customer Record
+        const date1 = new Date();
+        const customer = await customerRecord.findOne({ userId });
+        if (customer) {
+            const date2 = new Date(customer.createdAt);
+            if (!(date1.getFullYear() === date2.getFullYear() &&
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate())) {
+                customer.count += 1;
+                await customer.save();
+            }
+        }
+        else {
+            const newRecord = await customerRecord.create({ userId : userId, count: 1 });
+            const res = await restaurantDetails.findOneAndUpdate(
+                { _id : resId },
+                { $push: { customerData: newRecord._id } },
+                { new: true }
+              );
+        }
+
         res.status(201).json({
             message: "Comment added successfully",
             comment: savedComment,
@@ -104,17 +123,17 @@ const addComment = async (req, res) => {
 const pinComment = async (req, res) => {
     try {
         const { menuId, commentId } = req.params;
-    
+
         // Find the menu item
         const menu = await menuItem.findById(menuId);
-    
+
         if (!menu) {
             return res.status(404).json({ message: "Menu item not found" });
         }
-    
+
         // Check if the comment is already pinned
         const isPinned = menu.Pincomments.includes(commentId);
-    
+
         let updatedMenu;
         if (isPinned) {
             // If the comment is pinned, remove it
@@ -137,16 +156,16 @@ const pinComment = async (req, res) => {
             commentId,
             { $set: { Active: !isPinned ? "true" : "false" } } // Toggle Active state based on whether comment is being pinned or unpinned
         );
-    
+
         res.status(200).json({
-          message: `Comment ${isPinned ? "unpinned" : "pinned"} successfully`,
-          data: updateMenu,
+            message: `Comment ${isPinned ? "unpinned" : "pinned"} successfully`,
+            data: updateMenu,
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "An error occurred", error });
     }
-    
+
 };
 
 module.exports = { addComment, pinComment };
