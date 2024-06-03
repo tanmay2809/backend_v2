@@ -113,7 +113,7 @@ const updateMenu = async (req, res) => {
         itemCategory
       } = req.body;
 
-
+      console.log(req.body)
       console.log(itemCategory);
       const updates = {};
        
