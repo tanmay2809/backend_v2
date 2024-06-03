@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const customerRecord = require("./customerRecord");
 const Schema = mongoose.Schema;
 
 const restaurantDetails = new Schema({
@@ -78,6 +79,12 @@ const restaurantDetails = new Schema({
     type: Number,
     default: 0,
   },
+  customerData : [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref : "customerRecord",
+    }
+  ]
 });
 
 const RestaurantDetails = mongoose.model(

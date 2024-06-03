@@ -7,6 +7,8 @@ const mailSender = require("../utils/mailSender");
 const { resetPasswordEmail } = require("../mail/template/resetPasswordEmail");
 const jwt = require("jsonwebtoken");
 const userProfile = require("../models/userProfile");
+const analytics = require('../models/analytics');
+const customerRecord = require('../models/customerRecord');
 
 const registerRestaurant = async (req, res) => {
   try {
@@ -124,13 +126,37 @@ const getRestaurantDetailsById = async (req, res) => {
     const restaurant = await restaurantDetails.findById(id)
       .populate("category")
       .populate("menu")
-      .populate("totalCustomersData");
+      .populate("totalCustomersData")
+      .populate("customerData");
+
 
     if (!restaurant) {
       return res.status(404).json({
         message: "Restaurant details not found",
       });
     }
+
+     // Populate userId field for each customer
+     await Promise.all(
+      restaurant.totalCustomersData.map(async (tid, index) => {
+        restaurant.totalCustomersData[index] = await analytics
+          .findById(tid._id)
+          .populate({
+            path: "userId"
+          });
+      })
+    );
+
+    // Populate userId field for customerData
+    await Promise.all(
+      restaurant.customerData.map(async (cid, index) => {
+        restaurant.customerData[index] = await customerRecord
+          .findById(cid._id)
+          .populate({
+            path: "userId"
+          });
+      })
+    );
 
     // Populate menuItem field for each category
     await Promise.all(
