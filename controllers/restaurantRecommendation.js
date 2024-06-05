@@ -2,6 +2,7 @@ const restaurantDetails = require('../models/restaurantDetails');
 const userProfile =  require('../models/userProfile');
 const analytics = require('../models/analytics');
 const customerRecord = require('../models/customerRecord');
+const recommendationRecord = require('../models/recommendationRecord');
 
 const toggleRecommendation =  async(req,res) => {
     try{
@@ -100,13 +101,18 @@ const toggleRecommendation =  async(req,res) => {
 
         //for customer Record
         const date1 = new Date();
-        const customer = await customerRecord.findOne({ userId });
-        if (customer) {
+        const restaurant1 = await restaurantDetails.findById(restaurantId).populate('customerData').exec();
+        const customerData = restaurant1.customerData;
+        const isUserIdPresent = customerData.some((customer) => customer.userId.toString() === userId);
+        
+        if (isUserIdPresent) {
+            const customer = await customerRecord.findOne({ userId });
             const date2 = new Date(customer.createdAt);
             if (!(date1.getFullYear() === date2.getFullYear() &&
                 date1.getMonth() === date2.getMonth() &&
                 date1.getDate() === date2.getDate())) {
                 customer.count += 1;
+                customer.createdAt = date1;
                 await customer.save();
             }
         }
@@ -119,6 +125,31 @@ const toggleRecommendation =  async(req,res) => {
               );
         }
 
+        //for recommendation record
+        const restaurant2 = await restaurantDetails.findById(restaurantId).populate('recommendationRecord').exec();
+
+        if (!restaurant2) {
+            return res.status(404).send('Restaurant not found');
+        }
+
+        const existingRecommendation = restaurant2.recommendationRecord.find(record => record.userId.toString() === userId);
+
+        if (existingRecommendation) {
+            // Remove the existing recommendation
+            await recommendationRecord.findByIdAndDelete(existingRecommendation._id);
+            restaurant2.recommendationRecord = restaurant2.recommendationRecord.filter(record => record._id.toString() !== existingRecommendation._id.toString());
+        } else {
+            // Create a new recommendation
+            const newRecommendation = new recommendationRecord({ userId });
+            await newRecommendation.save();
+            const res = await restaurantDetails.findOneAndUpdate(
+                { _id : restaurantId },
+                { $push: { recommendationRecord: newRecommendation._id } },
+                { new: true }
+              );
+        }
+
+        // await restaurant.save();
 
         res.status(200).json({ message: "Recommendation toggled successfully" });
 

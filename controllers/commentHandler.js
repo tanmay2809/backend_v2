@@ -87,13 +87,18 @@ const addComment = async (req, res) => {
 
         //for customer Record
         const date1 = new Date();
-        const customer = await customerRecord.findOne({ userId });
-        if (customer) {
+        const restaurant1 = await restaurantDetails.findById(resId).populate('customerData').exec();
+        const customerData = restaurant1.customerData;
+        const isUserIdPresent = customerData.some((customer) => customer.userId.toString() === userId);
+        
+        if (isUserIdPresent) {
+            const customer = await customerRecord.findOne({ userId });
             const date2 = new Date(customer.createdAt);
             if (!(date1.getFullYear() === date2.getFullYear() &&
                 date1.getMonth() === date2.getMonth() &&
                 date1.getDate() === date2.getDate())) {
                 customer.count += 1;
+                customer.createdAt = date1;
                 await customer.save();
             }
         }
