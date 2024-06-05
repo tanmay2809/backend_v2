@@ -127,7 +127,8 @@ const getRestaurantDetailsById = async (req, res) => {
       .populate("category")
       .populate("menu")
       .populate("totalCustomersData")
-      .populate("customerData");
+      .populate("customerData")
+      .populate("recommendationRecord");
 
 
     if (!restaurant) {

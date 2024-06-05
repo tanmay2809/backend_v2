@@ -2,16 +2,17 @@ const menuItem = require('../models/menuItem');
 const analytics = require('../models/analytics');
 const restaurantDetails = require('../models/restaurantDetails');
 const customerRecord = require('../models/customerRecord');
+const recommendationRecord = require('../models/recommendationRecord');
 
 const updateRating = async (req, res) => {
-    
+
     try {
 
 
-        const { rated,resId } = req.body;
+        const { rated, resId } = req.body;
         const userId = req.params.userId;
         const menuId = req.params.menuId;
-        
+
         const menu = await menuItem.findById(menuId);
 
         if (rated === 'mustTry') {
@@ -37,15 +38,14 @@ const updateRating = async (req, res) => {
         const averageRating = Math.round((menu.mustTryCount + menu.likedCount) / 2);
 
         menu.rated = averageRating;
-        
+
         await menu.save();
 
 
         //for total and returning customer 
-        
+
         const analytic = new analytics({
             userId,
-            // createdAt: "2024-05-12T14:19:14.311+00:00"
         });
 
         const savedAnalytics = await analytic.save();
@@ -81,14 +81,11 @@ const updateRating = async (req, res) => {
         }
 
         const x = restaurant.returningCustomerData.includes(userId);
-        if (!x)
-        {
+        if (!x) {
             //check krna hai ki vo user id present hai ki nahi totalCustomerData mein
             const match = restaurant.totalCustomersData.find(analyticsEntry => {
-                if(analyticsEntry.userId === userId)
-                {
-                    if(analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10))
-                    {
+                if (analyticsEntry.userId === userId) {
+                    if (analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)) {
                         return false;
                     }
                     return true;
@@ -107,33 +104,85 @@ const updateRating = async (req, res) => {
 
         //for customer Record
         const date1 = new Date();
-        const customer = await customerRecord.findOne({ userId });
-        if (customer) {
+        const restaurant1 = await restaurantDetails.findById(resId).populate('customerData').exec();
+        const customerData = restaurant1.customerData;
+        const isUserIdPresent = customerData.some((customer) => customer.userId.toString() === userId);
+
+        if (isUserIdPresent) {
+            const customer = await customerRecord.findOne({ userId });
             const date2 = new Date(customer.createdAt);
             if (!(date1.getFullYear() === date2.getFullYear() &&
                 date1.getMonth() === date2.getMonth() &&
                 date1.getDate() === date2.getDate())) {
                 customer.count += 1;
+                customer.createdAt = date1;
                 await customer.save();
             }
         }
         else {
-            const newRecord = await customerRecord.create({ userId : userId, count: 1 });
+            const newRecord = await customerRecord.create({ userId: userId, count: 1 });
             const res = await restaurantDetails.findOneAndUpdate(
-                { _id : resId },
+                { _id: resId },
                 { $push: { customerData: newRecord._id } },
                 { new: true }
-              );
+            );
         }
 
-        res.status(200).json({ 
-            message: "Rating updated successfully" 
+        //for recommendation record
+
+        const restaurant2 = await restaurantDetails.findById(resId);
+
+        if (!restaurant2) {
+            return res.status(404).send('Restaurant not found');
+        }
+
+        const Recrecord = await recommendationRecord.findOne({
+            userId,
+            menuId,
+            menu: true,
         });
-        
+
+        if (Recrecord) {
+            // If the rating is the same, delete the entry
+            if (Recrecord.rated === rated) {
+                await Recrecord.remove();
+                // return res.status(200).send({ message: 'Rating deleted' });
+            }
+            // If the rating is different, update the entry
+            else {
+                Recrecord.rated = rated;
+                Recrecord.createdAt = new Date();
+                Recrecord.low = rated === 'notLiked';
+                await Recrecord.save();
+                // return res.status(200).send({ message: 'Rating updated' });
+            }
+        } else {
+            // If no entry exists, create a new one
+            const newRecommendationRecord = new recommendationRecord({
+                userId,
+                menuId,
+                menu: true,
+                rated: rated,
+                low: rated === 'notLiked',
+            });
+            await newRecommendationRecord.save();
+
+            const res = await restaurantDetails.findOneAndUpdate(
+                { _id : resId },
+                { $push: { recommendationRecord: newRecommendationRecord._id } },
+                { new: true }
+              );
+            // return res.status(201).send({ message: 'Rating created' });
+        }
+
+        res.status(200).json({
+            message: "Rating updated successfully",
+        });
+
     } catch (error) {
         console.error("Error updating rating:", error);
-        res.status(500).json({ 
-            error: "Internal server error" 
+        res.status(500).json({
+            error: "Internal server error"
         });
     }
 };
