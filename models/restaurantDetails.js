@@ -8,9 +8,10 @@ const restaurantDetails = new Schema({
     type: String,
     // required: true,
   },
-  //   image: {
-  //     type: String,
-  //   },
+  email: {
+    type: String,
+  },
+
   contact: {
     type: String,
     // required: true,
@@ -18,10 +19,26 @@ const restaurantDetails = new Schema({
   cuisineServed: {
     type: [String],
   },
-  profile: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "RestaurantProfile",
+  fssaiLicenseNo: {
+    type: String,
+    // required: true,
   },
+  instaLink: {
+    type: String,
+  },
+  contactNo: {
+    type: String,
+    // required: true,
+  },
+  contactPerson: {
+    type: String,
+    // required: true,
+  },
+  outletAddress: {
+    type: String,
+    // required: true,
+  },
+
   paymentOptions: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "PaymentOption",
@@ -80,18 +97,18 @@ const restaurantDetails = new Schema({
     type: Number,
     default: 0,
   },
-  customerData : [
+  customerData: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref : "customerRecord",
-    }
+      ref: "customerRecord",
+    },
   ],
-  recommendationRecord : [
+  recommendationRecord: [
     {
-      type : mongoose.Schema.Types.ObjectId,
-      ref : "recommendationRecord",
-    }
-  ]
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "recommendationRecord",
+    },
+  ],
 });
 
 const RestaurantDetails = mongoose.model(

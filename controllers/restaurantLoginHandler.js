@@ -12,7 +12,7 @@ const customerRecord = require('../models/customerRecord');
 
 const registerRestaurant = async (req, res) => {
   try {
-    const { brandName, image, contactNumber, businessType, email, password } =
+    const { brandName,  contactNumber, businessType, email, password } =
       req.body;
 
     const existingRestaurant = await restaurantLogin.findOne({ email });
@@ -26,7 +26,8 @@ const registerRestaurant = async (req, res) => {
 
     const newRestaurantDetails = new restaurantDetails({
       name: brandName,
-      image,
+      email:email,
+
       contact: contactNumber,
       cuisineServed: businessType,
     });

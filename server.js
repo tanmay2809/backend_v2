@@ -21,6 +21,7 @@ const resProfile = require('./routes/restaurantProfile')
 const payment = require("./routes/paymentroute")
 const paymentoption = require("./routes/paymentoption")
 const customerRecord = require("./routes/customerRecord");
+const otp = require("./routes/otp");
 
 const PORT = process.env.PORT || 5000;
 
@@ -47,6 +48,7 @@ app.use('/api',menuRecommendation);
 app.use('/api',comments);
 app.use("/api", paymentoption);
 app.use('/api',customerRecord);
+app.use("/api", otp);
 
 
 
