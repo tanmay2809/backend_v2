@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
 
 const paymentOptionSchema = new mongoose.Schema({
-  method: {
+  payoutMethod: {
     type: String,
-    enum: ["bank_transfer", "upi"],
+    enum: ["BankTransfer", "upi"],
     required: true,
   },
   bankTransfer: {
-    accountNo: String,
-    ifscCode: String,
-    beneficiaryName: String,
+    accountNumber: String,
+    ifsc: String,
+    bankingName: String,
   },
   upi: {
     upiId: String,
-    upiNumber: String,
+    bankingName: String,
   },
 });
 

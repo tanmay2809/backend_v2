@@ -23,6 +23,10 @@ const restaurantDetails = new Schema({
     type: String,
     // required: true,
   },
+  gst: {
+    type: String,
+    // required: true,
+  },
   instaLink: {
     type: String,
   },

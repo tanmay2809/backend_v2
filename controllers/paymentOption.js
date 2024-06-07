@@ -2,18 +2,24 @@ const RestaurantDetails = require("../models/restaurantDetails");
 const PaymentOption = require("../models/paymentOption");
 const createPaymentOption = async (req, res) => {
   try {
-    const { method, bankAccount, ifscCode, BenificeiryName, UpiId, UpiNumber } =
-      req.body;
+    const {
+      payoutMethod,
+      bankAccount,
+      ifsc,
+      bankingName,
+      upiId,
+      bankingNameUpi,
+    } = req.body;
 
     // Validate method
-    if (!method || !["bank_transfer", "upi"].includes(method)) {
+    if (!payoutMethod || !["BankTransfer", "upi"].includes(payoutMethod)) {
       return res.status(400).json({ error: "Invalid payment method" });
     }
 
-    // Validate bank transfer details if method is bank_transfer
+    // Validate bank transfer details if method is BankTransfer
     if (
-      method === "bank_transfer" &&
-      (!bankAccount || !ifscCode || !BenificeiryName)
+      payoutMethod === "BankTransfer" &&
+      (!bankAccount || !ifsc || !bankingName)
     ) {
       return res
         .status(400)
@@ -21,22 +27,27 @@ const createPaymentOption = async (req, res) => {
     }
 
     // Validate UPI details if method is upi
-    if (method === "upi" && (!UpiId || !UpiNumber)) {
+    if (payoutMethod === "upi" && (!upiId || !bankingNameUpi)) {
       return res.status(400).json({ error: "Incomplete UPI details" });
     }
 
     const newPaymentOption = new PaymentOption({
-      method,
+      payoutMethod,
       bankTransfer:
-        method === "bank_transfer"
+        payoutMethod === "BankTransfer"
           ? {
-              accountNo: bankAccount,
-              ifscCode,
-              beneficiaryName: BenificeiryName,
+              accountNumber: bankAccount,
+              ifsc,
+              bankingName,
             }
           : undefined,
       upi:
-        method === "upi" ? { upiId: UpiId, upiNumber: UpiNumber } : undefined,
+        payoutMethod === "upi"
+          ? {
+              upiId,
+              bankingName: bankingNameUpi,
+            }
+          : undefined,
     });
 
     const savedPaymentOption = await newPaymentOption.save();
@@ -52,7 +63,7 @@ const createPaymentOption = async (req, res) => {
     }
 
     restaurantDetails.paymentOptions = savedPaymentOption._id;
-    await restaurantDetails.save({ new: true });
+    await restaurantDetails.save();
 
     res.status(201).json({
       message:
@@ -64,6 +75,11 @@ const createPaymentOption = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+module.exports = {
+  createPaymentOption,
+};
+
 const getPaymentOptionsId = async (req, res) => {
   try {
     const restaurantDetailsId = req.params.restaurantDetailsId;

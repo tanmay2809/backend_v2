@@ -1,19 +1,33 @@
-const bcrypt = require('bcrypt');
-const restaurantDetails = require('../models/restaurantDetails');
-const restaurantLogin = require('../models/restaurantLogin');
-const categorySchema = require('../models/category');
+const bcrypt = require("bcrypt");
+const restaurantDetails = require("../models/restaurantDetails");
+const restaurantLogin = require("../models/restaurantLogin");
+const categorySchema = require("../models/category");
 const menuItemSchema = require("../models/menuItem");
 const mailSender = require("../utils/mailSender");
 const { resetPasswordEmail } = require("../mail/template/resetPasswordEmail");
 const jwt = require("jsonwebtoken");
 const userProfile = require("../models/userProfile");
-const analytics = require('../models/analytics');
-const customerRecord = require('../models/customerRecord');
+const analytics = require("../models/analytics");
+const customerRecord = require("../models/customerRecord");
+const PaymentOption = require("../models/paymentOption");
 
 const registerRestaurant = async (req, res) => {
   try {
-    const { brandName,  contactNumber, businessType, email, password } =
-      req.body;
+    console.log(req.body);
+    const {
+      brandName,
+      contactNumber,
+      businessType,
+      email,
+      password,
+      fssai,
+      gst,
+      payoutMethod,
+      bankAccount,
+      ifsc,
+      bankingName,
+      upiId,
+    } = req.body;
 
     const existingRestaurant = await restaurantLogin.findOne({ email });
     if (existingRestaurant) {
@@ -26,13 +40,45 @@ const registerRestaurant = async (req, res) => {
 
     const newRestaurantDetails = new restaurantDetails({
       name: brandName,
-      email:email,
-
+      email: email,
+      fssaiLicenseNo: fssai,
+      gst,
       contact: contactNumber,
       cuisineServed: businessType,
     });
 
     const savedRestaurantDetails = await newRestaurantDetails.save();
+    const newPaymentOption = new PaymentOption({
+      payoutMethod,
+      bankTransfer:
+        payoutMethod === "BankTransfer"
+          ? {
+              accountNumber: bankAccount,
+              ifsc,
+              bankingName,
+            }
+          : undefined,
+      upi:
+        payoutMethod === "upi"
+          ? {
+              upiId,
+              bankingName: bankingName,
+            }
+          : undefined,
+    });
+
+    const savedPaymentOption = await newPaymentOption.save();
+    const restaurantDetailsId = savedRestaurantDetails._id;
+    const restaurantDetail = await restaurantDetails.findById(
+      restaurantDetailsId
+    );
+
+    if (!restaurantDetail) {
+      return res.status(404).json({ error: "Restaurant details not found" });
+    }
+
+    restaurantDetail.paymentOptions = savedPaymentOption._id;
+    await restaurantDetail.save();
 
     const newRestaurantLogin = new restaurantLogin({
       details: savedRestaurantDetails._id,
@@ -102,20 +148,20 @@ const login = async (req, res) => {
 //         const restaurant = await restaurantDetails.findById(id).populate('category').populate('menu');
 
 //         if (!restaurant) {
-//             return res.status(404).json({ 
-//                 message: 'Restaurant details not found' 
+//             return res.status(404).json({
+//                 message: 'Restaurant details not found'
 //             });
 //         }
 
-//         res.status(200).json({ 
+//         res.status(200).json({
 //             message : 'Data fetched successfully',
 //             restaurant
 //          });
 
 //     } catch (error) {
 //         console.error('Error fetching restaurant details:', error);
-//         res.status(500).json({ 
-//             message: 'Internal server error' 
+//         res.status(500).json({
+//             message: 'Internal server error'
 //         });
 //     }
 // };
@@ -124,13 +170,13 @@ const getRestaurantDetailsById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const restaurant = await restaurantDetails.findById(id)
+    const restaurant = await restaurantDetails
+      .findById(id)
       .populate("category")
       .populate("menu")
       .populate("totalCustomersData")
       .populate("customerData")
       .populate("recommendationRecord");
-
 
     if (!restaurant) {
       return res.status(404).json({
@@ -138,13 +184,13 @@ const getRestaurantDetailsById = async (req, res) => {
       });
     }
 
-     // Populate userId field for each customer
-     await Promise.all(
+    // Populate userId field for each customer
+    await Promise.all(
       restaurant.totalCustomersData.map(async (tid, index) => {
         restaurant.totalCustomersData[index] = await analytics
           .findById(tid._id)
           .populate({
-            path: "userId"
+            path: "userId",
           });
       })
     );
@@ -155,7 +201,7 @@ const getRestaurantDetailsById = async (req, res) => {
         restaurant.customerData[index] = await customerRecord
           .findById(cid._id)
           .populate({
-            path: "userId"
+            path: "userId",
           });
       })
     );
@@ -178,8 +224,7 @@ const getRestaurantDetailsById = async (req, res) => {
       restaurant.menu.map(async (menuId, index) => {
         restaurant.menu[index] = await menuItemSchema
           .findById(menuId)
-          .populate({path:"comments",
-          populate:{path:"userId"}});
+          .populate({ path: "comments", populate: { path: "userId" } });
       })
     );
 
@@ -195,8 +240,6 @@ const getRestaurantDetailsById = async (req, res) => {
   }
 };
 
-
-
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
@@ -204,7 +247,7 @@ const forgotPassword = async (req, res) => {
     if (!oldUser) {
       return res.json({ status: " restaurant Not Exists!!" });
     }
-    const secret = process.env.JWT_SECRET ;
+    const secret = process.env.JWT_SECRET;
     const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, {
       expiresIn: "5m",
     });
@@ -224,7 +267,6 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-
 const resetPasswordPage = async (req, res) => {
   const { id, token } = req.params;
   console.log(req.params);
@@ -232,17 +274,16 @@ const resetPasswordPage = async (req, res) => {
   if (!oldUser) {
     return res.json({ status: "restaurant Not Exists!!" });
   }
-  const secret = process.env.JWT_SECRET ;
+  const secret = process.env.JWT_SECRET;
   try {
     const verify = jwt.verify(token, secret);
     // res.render("index", { email: verify.email, status: "Not Verified" });
-    res.send("Verified")
+    res.send("Verified");
   } catch (error) {
     console.log(error);
     res.send("Not Verified");
   }
 };
-
 
 const resetPassword = async (req, res) => {
   const { id, token } = req.params;
@@ -252,7 +293,7 @@ const resetPassword = async (req, res) => {
   if (!oldUser) {
     return res.json({ status: "restaurant Not Exists!!" });
   }
-  const secret = JWT_SECRET ;
+  const secret = JWT_SECRET;
   try {
     const verify = jwt.verify(token, secret);
     const encryptedPassword = await bcrypt.hash(password, 10);
