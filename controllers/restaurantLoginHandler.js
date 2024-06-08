@@ -315,6 +315,68 @@ const resetPassword = async (req, res) => {
   }
 };
 
+
+const updateRestaurantDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      email,
+      image,
+      outletAddress,
+      contact,
+      cuisineServed,
+      fssaiLicenseNo,
+      gst,
+      instaLink,
+      contactNo,
+      contactPerson,
+    } = req.body;
+
+    console.log(req.body);
+
+    const updates = {};
+
+    // Use if statements to add updates
+    if (name !== undefined) updates.name = name;
+    if (image !== undefined) updates.image = image;
+    if (outletAddress !== undefined) updates.outletAddress = outletAddress;
+    if (contact !== undefined) updates.contact = contact;
+    if (cuisineServed !== undefined) updates.cuisineServed = cuisineServed;
+    if (fssaiLicenseNo !== undefined) updates.fssaiLicenseNo = fssaiLicenseNo;
+    if (gst !== undefined) updates.gst = gst;
+    if (instaLink !== undefined) updates.instaLink = instaLink;
+    if (contactNo !== undefined) updates.contactNo = contactNo;
+    if (contactPerson !== undefined) updates.contactPerson = contactPerson;
+
+    const updatedRestaurant = await restaurantDetails.findByIdAndUpdate(
+      id,
+      updates,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedRestaurant) {
+      return res.status(404).json({ error: "Restaurant details not found" });
+    }
+
+    res.status(200).json({
+      message: "Restaurant details updated successfully",
+      restaurant: updatedRestaurant,
+    });
+  } catch (error) {
+    console.error("Error updating restaurant details:", error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+
+
+
 module.exports = {
   registerRestaurant,
   login,
@@ -322,4 +384,5 @@ module.exports = {
   forgotPassword,
   resetPasswordPage,
   resetPassword,
+  updateRestaurantDetails,
 };

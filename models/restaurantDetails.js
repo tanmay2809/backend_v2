@@ -11,7 +11,7 @@ const restaurantDetails = new Schema({
   email: {
     type: String,
   },
-  pic: {
+  image: {
     type: String,
   },
   outletAddress: {
