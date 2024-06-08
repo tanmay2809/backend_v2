@@ -339,6 +339,7 @@ const updateRestaurantDetails = async (req, res) => {
 
     // Use if statements to add updates
     if (name ) updates.name = name;
+     if (email) updates.email = email;
     if (image ) updates.image = image;
     if (outletAddress) updates.outletAddress = outletAddress;
     if (contact ) updates.contact = contact;
