@@ -338,16 +338,16 @@ const updateRestaurantDetails = async (req, res) => {
     const updates = {};
 
     // Use if statements to add updates
-    if (name !== undefined) updates.name = name;
-    if (image !== undefined) updates.image = image;
-    if (outletAddress !== undefined) updates.outletAddress = outletAddress;
-    if (contact !== undefined) updates.contact = contact;
-    if (cuisineServed !== undefined) updates.cuisineServed = cuisineServed;
-    if (fssaiLicenseNo !== undefined) updates.fssaiLicenseNo = fssaiLicenseNo;
-    if (gst !== undefined) updates.gst = gst;
-    if (instaLink !== undefined) updates.instaLink = instaLink;
-    if (contactNo !== undefined) updates.contactNo = contactNo;
-    if (contactPerson !== undefined) updates.contactPerson = contactPerson;
+    if (name ) updates.name = name;
+    if (image ) updates.image = image;
+    if (outletAddress) updates.outletAddress = outletAddress;
+    if (contact ) updates.contact = contact;
+    if (cuisineServed) updates.cuisineServed = cuisineServed;
+    if (fssaiLicenseNo ) updates.fssaiLicenseNo = fssaiLicenseNo;
+    if (gst ) updates.gst = gst;
+    if (instaLink ) updates.instaLink = instaLink;
+    if (contactNo ) updates.contactNo = contactNo;
+    if (contactPerson) updates.contactPerson = contactPerson;
 
     const updatedRestaurant = await restaurantDetails.findByIdAndUpdate(
       id,
