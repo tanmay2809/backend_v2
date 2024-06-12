@@ -124,6 +124,7 @@ const updateRating = async (req, res) => {
         const restaurant1 = await restaurantDetails.findById(resId).populate('customerData').exec();
         const customerData = restaurant1.customerData;
         // const isUserIdPresent = customerData.some((customer) => customer.userId.toString() === userId);
+        if(customerData.length > 0){
         const c = customerData.find((customer) => customer.userId.toString() === userId);
 
         if (c) {
@@ -140,6 +141,15 @@ const updateRating = async (req, res) => {
                 customer.createdAt = date1;
                 await customer.save();
             }
+        }
+        else {
+            const newRecord = await customerRecord.create({ userId: userId, count: 1 });
+            const res = await restaurantDetails.findOneAndUpdate(
+                { _id: resId },
+                { $push: { customerData: newRecord._id } },
+                { new: true }
+            );
+        }
         }
         else {
             const newRecord = await customerRecord.create({ userId: userId, count: 1 });
