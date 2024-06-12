@@ -326,7 +326,7 @@ const updateRestaurantDetails = async (req, res) => {
       outletAddress,
       contact,
       cuisineServed,
-      fssaiLicenseNo,
+      fssaiLicenceNumber,
       gst,
       instaLink,
       contactNo,
@@ -344,7 +344,7 @@ const updateRestaurantDetails = async (req, res) => {
     if (outletAddress) updates.outletAddress = outletAddress;
     if (contact) updates.contact = contact;
     if (cuisineServed) updates.cuisineServed = cuisineServed;
-    if (fssaiLicenseNo) updates.fssaiLicenseNo = fssaiLicenseNo;
+    if (fssaiLicenceNumber) updates.fssaiLicenseNo = fssaiLicenceNumber;
     if (gst) updates.gst = gst;
     if (instaLink) updates.instaLink = instaLink;
     if (contactNo) updates.contactNo = contactNo;
