@@ -39,7 +39,6 @@ const toggleRecommendation =  async(req,res) => {
         //for total and returning customer
         const analytic = new analytics({
             userId,
-            // createdAt: "2024-05-12T14:19:14.311+00:00"
         });
 
         const savedAnalytics = await analytic.save();
@@ -49,13 +48,50 @@ const toggleRecommendation =  async(req,res) => {
             return res.status(500).json({ error: "Restaurant details not found" });
         }
 
-        if (rest.totalCustomersData.length > 0) {
-            const existingAnalytics = await analytics.find({
-                _id: { $in: rest.totalCustomersData }
+        //total returning
+        if (!Array.isArray(rest.returningCustomerData)) {
+            rest.returningCustomerData = [];
+        }
+
+        const x = rest.returningCustomerData.includes(userId);
+        if (!x) {
+            //check krna hai ki vo user id present hai ki nahi totalCustomerData mein
+
+            // const match = restaurant.totalCustomersData.find(analyticsEntry => {
+            //     if (analyticsEntry.userId === userId) {
+            //         if (analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)) {
+            //             return false;
+            //         }
+            //         return true;
+            //     }
+            //     return false;
+            //     // return analyticsEntry.userId === userId && analyticsEntry.createdAt.toISOString().slice(0, 10) != savedAnalytics.createdAt.toISOString().slice(0, 10);
+            // });
+            const match = rest.totalCustomersData.some(analyticsEntry => {
+                return analyticsEntry.userId === userId &&
+                       analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
             });
 
-            const hasDuplicate = existingAnalytics.some(entry =>
-                entry.userId.toString() === userId && entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)
+            //if not present
+            if (!match) {
+                rest.returningCustomerData.push(userId);
+                rest.returningCustomer = restaurant.returningCustomerData.length;
+                await rest.save();
+            }
+        }
+        //total customer 
+        if (rest.totalCustomersData.length > 0) {
+            // const existingAnalytics = await analytics.find({
+            //     _id: { $in: rest.totalCustomersData }
+            // });
+
+            // const hasDuplicate = existingAnalytics.some(entry =>
+            //     entry.userId.toString() === userId && entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)
+            // );
+
+            const hasDuplicate = rest.totalCustomersData.some(entry =>
+                entry.userId === userId &&
+                entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)
             );
 
             if (!hasDuplicate) {
@@ -70,43 +106,15 @@ const toggleRecommendation =  async(req,res) => {
             await rest.save();
         }
 
-        if (!Array.isArray(rest.returningCustomerData)) {
-            rest.returningCustomerData = [];
-        }
-
-        const x = rest.returningCustomerData.includes(userId);
-        if (!x)
-        {
-            //check krna hai ki vo user id present hai ki nahi totalCustomerData mein
-            const match = rest.totalCustomersData.find(analyticsEntry => {
-                if(analyticsEntry.userId === userId)
-                {
-                    if(analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10))
-                    {
-                        return false;
-                    }
-                    return true;
-                }
-                return false;
-                // return analyticsEntry.userId === userId && analyticsEntry.createdAt.toISOString().slice(0, 10) != savedAnalytics.createdAt.toISOString().slice(0, 10);
-            });
-
-            //if present
-            if (!match) {
-                rest.returningCustomerData.push(userId);
-                rest.returningCustomer = rest.returningCustomerData.length;
-                await rest.save();
-            }
-        }
-
         //for customer Record
         const date1 = new Date();
         const restaurant1 = await restaurantDetails.findById(restaurantId).populate('customerData').exec();
         const customerData = restaurant1.customerData;
-        const isUserIdPresent = customerData.some((customer) => customer.userId.toString() === userId);
+        const c = customerData.find((customer) => customer.userId.toString() === userId);
+        // const isUserIdPresent = customerData.some((customer) => customer.userId.toString() === userId);
         
-        if (isUserIdPresent) {
-            const customer = await customerRecord.findOne({ userId });
+        if (c) {
+            const customer = await customerRecord.findOne({_id : c._id});
             const date2 = new Date(customer.createdAt);
             if (!(date1.getFullYear() === date2.getFullYear() &&
                 date1.getMonth() === date2.getMonth() &&
