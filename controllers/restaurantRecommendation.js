@@ -67,20 +67,23 @@ const toggleRecommendation =  async(req,res) => {
             //     return false;
             //     // return analyticsEntry.userId === userId && analyticsEntry.createdAt.toISOString().slice(0, 10) != savedAnalytics.createdAt.toISOString().slice(0, 10);
             // });
-            const match = rest.totalCustomersData.some(analyticsEntry => {
+            const match1 = rest.totalCustomersData.some(analyticsEntry => {
                 return analyticsEntry.userId === userId &&
                        analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
             });
+            const match2 = rest.totalCustomersData.some(analyticsEntry => {
+                return analyticsEntry.userId === userId;
+            });
 
             //if not present
-            if (!match) {
+            if (!match1 && match2) {
                 rest.returningCustomerData.push(userId);
                 rest.returningCustomer = restaurant.returningCustomerData.length;
                 await rest.save();
             }
         }
         //total customer 
-        if (rest.totalCustomersData.length > 0) {
+        if (rest.totalCustomers > 0) {
             // const existingAnalytics = await analytics.find({
             //     _id: { $in: rest.totalCustomersData }
             // });
