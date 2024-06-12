@@ -113,26 +113,35 @@ const toggleRecommendation = async (req, res) => {
         const date1 = new Date();
         const restaurant1 = await restaurantDetails.findById(restaurantId).populate('customerData').exec();
         const customerData = restaurant1.customerData;
-        const c = customerData.find((customer) => customer.userId.toString() === userId);
-        // const isUserIdPresent = customerData.some((customer) => customer.userId.toString() === userId);
+        if (customerData.length > 0) {
+            const c = customerData.find((customer) => customer.userId.toString() === userId);
+            // const isUserIdPresent = customerData.some((customer) => customer.userId.toString() === userId);
 
-        if (c) {
-            const customer = await customerRecord.findOne({ _id: c._id });
-            const date2 = new Date(customer.createdAt);
-            if (!(date1.getFullYear() === date2.getFullYear() &&
-                date1.getMonth() === date2.getMonth() &&
-                date1.getDate() === date2.getDate())) {
-                customer.count += 1;
-                customer.createdAt = date1;
-                await customer.save();
+            if (c) {
+                const customer = await customerRecord.findOne({ _id: c._id });
+                const date2 = new Date(customer.createdAt);
+                if (!(date1.getFullYear() === date2.getFullYear() &&
+                    date1.getMonth() === date2.getMonth() &&
+                    date1.getDate() === date2.getDate())) {
+                    customer.count += 1;
+                    customer.createdAt = date1;
+                    await customer.save();
+                }
+                else {
+                    customer.createdAt = date1;
+                    await customer.save();
+                }
             }
-            else{
-                customer.createdAt = date1;
-                await customer.save();
+            else {
+                const newRecord = await customerRecord.create({ userId: userId, count: 1,createdAt : date1 });
+                const res = await restaurantDetails.findOneAndUpdate(
+                    { _id: restaurantId },
+                    { $push: { customerData: newRecord._id } },
+                    { new: true }
+                );
             }
         }
         else {
-            const newRecord = await customerRecord.create({ userId: userId, count: 1 });
             const res = await restaurantDetails.findOneAndUpdate(
                 { _id: restaurantId },
                 { $push: { customerData: newRecord._id } },
