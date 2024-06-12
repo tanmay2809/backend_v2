@@ -136,6 +136,10 @@ const updateRating = async (req, res) => {
                 customer.createdAt = date1;
                 await customer.save();
             }
+            else{
+                customer.createdAt = date1;
+                await customer.save();
+            }
         }
         else {
             const newRecord = await customerRecord.create({ userId: userId, count: 1 });
