@@ -1,11 +1,11 @@
 const restaurantDetails = require('../models/restaurantDetails');
-const userProfile =  require('../models/userProfile');
+const userProfile = require('../models/userProfile');
 const analytics = require('../models/analytics');
 const customerRecord = require('../models/customerRecord');
 const recommendationRecord = require('../models/recommendationRecord');
 
-const toggleRecommendation =  async(req,res) => {
-    try{
+const toggleRecommendation = async (req, res) => {
+    try {
         const userId = req.params.userId;
         const restaurantId = req.params.restaurantId;
 
@@ -35,7 +35,7 @@ const toggleRecommendation =  async(req,res) => {
 
         await user.save();
 
-        
+
         //for total and returning customer
         const analytic = new analytics({
             userId,
@@ -69,7 +69,7 @@ const toggleRecommendation =  async(req,res) => {
             // });
             const match1 = rest.totalCustomersData.some(analyticsEntry => {
                 return analyticsEntry.userId === userId &&
-                       analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
+                    analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
             });
             const match2 = rest.totalCustomersData.some(analyticsEntry => {
                 return analyticsEntry.userId === userId;
@@ -92,10 +92,10 @@ const toggleRecommendation =  async(req,res) => {
             //     entry.userId.toString() === userId && entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)
             // );
 
-            const hasDuplicate = rest.totalCustomersData.some(entry =>
-                entry.userId === userId &&
-                entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)
-            );
+            const hasDuplicate = rest.totalCustomersData.some(entry => {
+                return entry.userId === userId &&
+                    entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
+            });
 
             if (!hasDuplicate) {
                 rest.totalCustomersData.push(savedAnalytics._id);
@@ -115,9 +115,9 @@ const toggleRecommendation =  async(req,res) => {
         const customerData = restaurant1.customerData;
         const c = customerData.find((customer) => customer.userId.toString() === userId);
         // const isUserIdPresent = customerData.some((customer) => customer.userId.toString() === userId);
-        
+
         if (c) {
-            const customer = await customerRecord.findOne({_id : c._id});
+            const customer = await customerRecord.findOne({ _id: c._id });
             const date2 = new Date(customer.createdAt);
             if (!(date1.getFullYear() === date2.getFullYear() &&
                 date1.getMonth() === date2.getMonth() &&
@@ -126,14 +126,18 @@ const toggleRecommendation =  async(req,res) => {
                 customer.createdAt = date1;
                 await customer.save();
             }
+            else{
+                customer.createdAt = date1;
+                await customer.save();
+            }
         }
         else {
-            const newRecord = await customerRecord.create({ userId : userId, count: 1 });
+            const newRecord = await customerRecord.create({ userId: userId, count: 1 });
             const res = await restaurantDetails.findOneAndUpdate(
-                { _id : restaurantId },
+                { _id: restaurantId },
                 { $push: { customerData: newRecord._id } },
                 { new: true }
-              );
+            );
         }
 
         //for recommendation record
@@ -154,22 +158,22 @@ const toggleRecommendation =  async(req,res) => {
             const newRecommendation = new recommendationRecord({ userId });
             await newRecommendation.save();
             const res = await restaurantDetails.findOneAndUpdate(
-                { _id : restaurantId },
+                { _id: restaurantId },
                 { $push: { recommendationRecord: newRecommendation._id } },
                 { new: true }
-              );
+            );
         }
 
         // await restaurant.save();
 
         res.status(200).json({ message: "Recommendation toggled successfully" });
 
-    } catch(error) {
+    } catch (error) {
         console.error("Error toggling recommendation:", error);
-        res.status(500).json({ 
-            error: "Internal server error" 
+        res.status(500).json({
+            error: "Internal server error"
         });
     }
 };
 
-module.exports = {toggleRecommendation};
+module.exports = { toggleRecommendation };
