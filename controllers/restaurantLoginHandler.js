@@ -325,7 +325,7 @@ const updateRestaurantDetails = async (req, res) => {
       image,
       outletAddress,
       contact,
-      cuisineServed,
+      cuisinesServed,
       fssaiLicenceNumber,
       gst,
       instaLink,
@@ -343,7 +343,7 @@ const updateRestaurantDetails = async (req, res) => {
     if (image) updates.image = image;
     if (outletAddress) updates.outletAddress = outletAddress;
     if (contact) updates.contact = contact;
-    if (cuisineServed) updates.cuisineServed = cuisineServed;
+    if (cuisinesServed) updates.cuisineServed = cuisinesServed;
     if (fssaiLicenceNumber) updates.fssaiLicenseNo = fssaiLicenceNumber;
     if (gst) updates.gst = gst;
     if (instaLink) updates.instaLink = instaLink;
