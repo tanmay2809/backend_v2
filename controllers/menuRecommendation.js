@@ -143,7 +143,7 @@ const updateRating = async (req, res) => {
             }
         }
         else {
-            const newRecord = await customerRecord.create({ userId: userId, count: 1 });
+            const newRecord = await customerRecord.create({ userId: userId, count: 1,createdAt : date1 });
             const res = await restaurantDetails.findOneAndUpdate(
                 { _id: resId },
                 { $push: { customerData: newRecord._id } },
