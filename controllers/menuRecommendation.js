@@ -74,13 +74,17 @@ const updateRating = async (req, res) => {
             //     return false;
             //     // return analyticsEntry.userId === userId && analyticsEntry.createdAt.toISOString().slice(0, 10) != savedAnalytics.createdAt.toISOString().slice(0, 10);
             // });
-            const match = restaurant.totalCustomersData.some(analyticsEntry => {
+            const match1 = restaurant.totalCustomersData.some(analyticsEntry => {
                 return analyticsEntry.userId === userId &&
                        analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
             });
 
+            const match2 = restaurant.totalCustomersData.some(analyticsEntry => {
+                return analyticsEntry.userId === userId ;
+            });
+
             //if not present
-            if (!match) {
+            if (!match1 && match2) {
                 restaurant.returningCustomerData.push(userId);
                 restaurant.returningCustomer = restaurant.returningCustomerData.length;
                 await restaurant.save();
