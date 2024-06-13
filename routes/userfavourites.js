@@ -5,6 +5,6 @@ const {addToFavorites,getFavoriteMenuItems,} = require("../controllers/userfavou
 
 
 // Route to add a menu item to favorites
-router.put("/favourites/:userId/:menuItemId",addToFavorites);
+router.put("/favourites/:userId/:menuItemId/:resId",addToFavorites);
 router.get("/favourites/:userId", getFavoriteMenuItems);
 module.exports = router;

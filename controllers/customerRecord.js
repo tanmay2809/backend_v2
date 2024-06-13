@@ -20,8 +20,8 @@ const searchRecord = async (req, res) => {
         }
 
         const results = records.filter((record) => {
-            const userName = record.userId.name?.toLowerCase();
-            const userMobileNumber = record.userId.contact.toString();
+            const userName = record.userId?.name?.toLowerCase();
+            const userMobileNumber = record.userId?.contact.toString();
             const searchParamLower = searchParam?.toLowerCase();
             return (
                 (userName !== undefined && userName.includes(searchParamLower)) ||
