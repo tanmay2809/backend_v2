@@ -345,7 +345,7 @@ const updateRestaurantDetails = async (req, res) => {
     if (image) updates.image = image;
     if (outletAddress) updates.outletAddress = outletAddress;
     if (contact) updates.contact = contact;
-    if (cuisinesServed) updates.cuisineServed = cuisinesServed;
+    // if (cuisinesServed) updates.cuisineServed = cuisinesServed;
     if (fssaiLicenceNumber) updates.fssaiLicenseNo = fssaiLicenceNumber;
     if (gst) updates.gst = gst;
     if(facebookLink)updates.facebookLink = facebookLink;
