@@ -17,7 +17,9 @@ const restaurantDetails = new Schema({
   outletAddress: {
     type: String,
   },
-
+businessType:{
+   type: String,
+},
   contact: {
     type: String,
     // required: true,
