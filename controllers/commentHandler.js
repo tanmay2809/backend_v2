@@ -28,6 +28,7 @@ const addComment = async (req, res) => {
 
         const analytic = new analytics({
             userId,
+            createdAt : Date.now(),
         });
 
         const savedAnalytics = await analytic.save();
@@ -45,24 +46,13 @@ const addComment = async (req, res) => {
         const x = restaurant.returningCustomerData.includes(userId);
         if (!x) {
             //check krna hai ki vo user id present hai ki nahi totalCustomerData mein
-
-            // const match = restaurant.totalCustomersData.find(analyticsEntry => {
-            //     if (analyticsEntry.userId === userId) {
-            //         if (analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)) {
-            //             return false;
-            //         }
-            //         return true;
-            //     }
-            //     return false;
-            //     // return analyticsEntry.userId === userId && analyticsEntry.createdAt.toISOString().slice(0, 10) != savedAnalytics.createdAt.toISOString().slice(0, 10);
-            // });
             const match1 = restaurant.totalCustomersData.some(analyticsEntry => {
-                return analyticsEntry.userId === userId &&
+                return analyticsEntry.userId.equals(userId) &&
                        analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
             });
 
             const match2 = restaurant.totalCustomersData.some(analyticsEntry => {
-                return analyticsEntry.userId === userId;
+                return analyticsEntry.userId.equals(userId);
             });
 
             //if not present
@@ -75,30 +65,22 @@ const addComment = async (req, res) => {
 
 
         //total customers
-        if (restaurant.totalCustomersData.length > 0) {
-            // const existingAnalytics = await analytics.find({
-            //     _id: { $in: restaurant.totalCustomersData }
-            // });
+        const rest1 = await restaurantDetails.findById(resId).populate('totalCustomersData').exec();
+        if (rest1.totalCustomersData.length > 0) {
+            const existingEntry = rest1.totalCustomersData.find(data => {
+                return data.userId.equals(userId) && new Date(data.createdAt).toISOString().slice(0, 10) === new Date(savedAnalytics.createdAt).toISOString().slice(0, 10)
+            });
 
-            // const hasDuplicate = existingAnalytics.some(entry =>
-            //     entry.userId.toString() === userId && entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)
-            // );
-
-            const hasDuplicate = restaurant.totalCustomersData.some(entry =>
-                entry.userId === userId &&
-                entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)
-            );
-
-            if (!hasDuplicate) {
-                restaurant.totalCustomersData.push(savedAnalytics._id);
-                restaurant.totalCustomers = restaurant.totalCustomersData.length;
-                await restaurant.save();
+            if (!existingEntry) {
+                rest1.totalCustomersData.push(savedAnalytics._id);
+                rest1.totalCustomers = rest1.totalCustomersData.length;
+                await rest1.save();
             }
         }
         else {
-            restaurant.totalCustomersData.push(savedAnalytics._id);
-            restaurant.totalCustomers = restaurant.totalCustomersData.length;
-            await restaurant.save();
+            rest1.totalCustomersData.push(savedAnalytics._id);
+            rest1.totalCustomers = rest1.totalCustomersData.length;
+            await rest1.save();
         }
 
         //for customer Record

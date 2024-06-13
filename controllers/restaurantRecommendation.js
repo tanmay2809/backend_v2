@@ -68,11 +68,11 @@ const toggleRecommendation = async (req, res) => {
             //     // return analyticsEntry.userId === userId && analyticsEntry.createdAt.toISOString().slice(0, 10) != savedAnalytics.createdAt.toISOString().slice(0, 10);
             // });
             const match1 = rest.totalCustomersData.some(analyticsEntry => {
-                return analyticsEntry.userId === userId &&
+                return analyticsEntry.userId.equals(userId) &&
                     analyticsEntry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
             });
             const match2 = rest.totalCustomersData.some(analyticsEntry => {
-                return analyticsEntry.userId === userId;
+                return analyticsEntry.userId.equals(userId);
             });
 
             //if not present
@@ -82,8 +82,10 @@ const toggleRecommendation = async (req, res) => {
                 await rest.save();
             }
         }
+
         //total customer 
-        if (rest.totalCustomers > 0) {
+        const rest1 = await restaurantDetails.findById(restaurantId).populate('totalCustomersData').exec();
+        if (rest1.totalCustomers > 0) {
             // const existingAnalytics = await analytics.find({
             //     _id: { $in: rest.totalCustomersData }
             // });
@@ -92,21 +94,27 @@ const toggleRecommendation = async (req, res) => {
             //     entry.userId.toString() === userId && entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10)
             // );
 
-            const hasDuplicate = rest.totalCustomersData.some(entry => {
-                return entry.userId === userId &&
-                    entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
-            });
+            // const hasDuplicate = rest.totalCustomersData.some(entry => {
+            //     return entry.userId === userId &&
+            //         entry.createdAt.toISOString().slice(0, 10) === savedAnalytics.createdAt.toISOString().slice(0, 10);
+            // });
 
-            if (!hasDuplicate) {
-                rest.totalCustomersData.push(savedAnalytics._id);
-                rest.totalCustomers = rest.totalCustomersData.length;
-                await rest.save();
+            const existingEntry = rest1.totalCustomersData.find(data => {
+                // console.log("data",data);
+                return data.userId.equals(userId) && new Date(data.createdAt).toISOString().slice(0, 10) === new Date(savedAnalytics.createdAt).toISOString().slice(0, 10)
+            });
+            // console.log("existing entry",existingEntry);
+
+            if (!existingEntry) {
+                rest1.totalCustomersData.push(savedAnalytics._id);
+                rest1.totalCustomers = rest1.totalCustomersData.length;
+                await rest1.save();
             }
         }
         else {
-            rest.totalCustomersData.push(savedAnalytics._id);
-            rest.totalCustomers = rest.totalCustomersData.length;
-            await rest.save();
+            rest1.totalCustomersData.push(savedAnalytics._id);
+            rest1.totalCustomers = rest1.totalCustomersData.length;
+            await rest1.save();
         }
 
         //for customer Record
