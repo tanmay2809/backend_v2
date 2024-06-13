@@ -333,6 +333,7 @@ const updateRestaurantDetails = async (req, res) => {
       youtubeLink,
       contactNo,
       contactPerson,
+      businessType
     } = req.body;
 
     console.log(req.body);
@@ -353,6 +354,7 @@ const updateRestaurantDetails = async (req, res) => {
     if (instaLink) updates.instaLink = instaLink;
     if (contactNo) updates.contactNo = contactNo;
     if (contactPerson) updates.contactPerson = contactPerson;
+     if (businessType) updates.businessType = businessType;
 
     const updatedRestaurant = await restaurantDetails.findByIdAndUpdate(
       id,
