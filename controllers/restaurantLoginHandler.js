@@ -329,6 +329,8 @@ const updateRestaurantDetails = async (req, res) => {
       fssaiLicenceNumber,
       gst,
       instaLink,
+      facebookLink,
+      youtubeLink,
       contactNo,
       contactPerson,
     } = req.body;
@@ -346,6 +348,8 @@ const updateRestaurantDetails = async (req, res) => {
     if (cuisinesServed) updates.cuisineServed = cuisinesServed;
     if (fssaiLicenceNumber) updates.fssaiLicenseNo = fssaiLicenceNumber;
     if (gst) updates.gst = gst;
+    if(facebookLink)updates.facebookLink = facebookLink;
+    if (youtubeLink) updates.youtubeLink = youtubeLink;
     if (instaLink) updates.instaLink = instaLink;
     if (contactNo) updates.contactNo = contactNo;
     if (contactPerson) updates.contactPerson = contactPerson;

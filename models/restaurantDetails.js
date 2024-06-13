@@ -36,6 +36,12 @@ const restaurantDetails = new Schema({
   instaLink: {
     type: String,
   },
+  facebookLink:{
+    type:String
+  },
+  youtubeLink:{
+    type:String
+  },
   contactNo: {
     type: String,
     // required: true,
