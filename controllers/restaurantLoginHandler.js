@@ -333,6 +333,7 @@ const updateRestaurantDetails = async (req, res) => {
       youtubeLink,
       contactNo,
       contactPerson,
+      businessType
     } = req.body;
 
     console.log(req.body);
@@ -345,7 +346,7 @@ const updateRestaurantDetails = async (req, res) => {
     if (image) updates.image = image;
     if (outletAddress) updates.outletAddress = outletAddress;
     if (contact) updates.contact = contact;
-    // if (cuisinesServed) updates.cuisineServed = cuisinesServed;
+     if (cuisinesServed) updates.cuisineServed = cuisinesServed;
     if (fssaiLicenceNumber) updates.fssaiLicenseNo = fssaiLicenceNumber;
     if (gst) updates.gst = gst;
     if(facebookLink)updates.facebookLink = facebookLink;
@@ -353,6 +354,7 @@ const updateRestaurantDetails = async (req, res) => {
     if (instaLink) updates.instaLink = instaLink;
     if (contactNo) updates.contactNo = contactNo;
     if (contactPerson) updates.contactPerson = contactPerson;
+     if (businessType) updates.businessType = businessType;
 
     const updatedRestaurant = await restaurantDetails.findByIdAndUpdate(
       id,
