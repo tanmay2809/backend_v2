@@ -24,7 +24,7 @@ const addToFavorites = async (req, res) => {
     }
 
 
-      let favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId === String(resId));
+    const favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId.toString() === resId);
 
     if (!favoriteRestaurant) {
       user.favoriteMenuItems.push({
@@ -154,39 +154,35 @@ const addToFavorites = async (req, res) => {
   }
 };
 const getFavoriteMenuItems = async (req, res) => {
-try {
-  const userId = req.params.userId;
-  const resId = req.params.resId;
+  try {
+    const userId = req.params.userId;
+    const resId = req.params.resId;
 
-  // Validate that userId and resId are provided
-  if (!userId || !resId) {
-    return res.status(400).json({ error: "User ID and Restaurant ID are required" });
+    // Find the user by ID
+    const user = await userProfile.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Check if the restaurant exists in user's favorites
+    const favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId.toString() === resId);
+
+    if (!favoriteRestaurant) {
+      const favoriteMenuItems = [];
+      return res.status(404).json({ favoriteMenuItems });
+    }
+
+    // Fetch the favorite menu items for the user and populate the 'menuItems' field
+    const favoriteMenuItems = await MenuItem.find({
+      _id: { $in: favoriteRestaurant.menuItems }
+    });
+
+    res.status(200).json({ favoriteMenuItems });
+  } catch (error) {
+    console.error("Error fetching favorite menu items:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  // Find the user by ID
-  const user = await userProfile.findById(userId);
-
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
-
-  // Check if the restaurant exists in user's favorites
-  let favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId === String(resId));
-
-  if (!favoriteRestaurant) {
-    return res.status(404).json({ favoriteMenuItems: [] });
-  }
-
-  // Fetch the favorite menu items for the user and populate the 'menuItems' field
-  const favoriteMenuItems = await MenuItem.find({
-    _id: { $in: favoriteRestaurant.menuItems }
-  });
-
-  res.status(200).json({ favoriteMenuItems });
-} catch (error) {
-  console.error("Error fetching favorite menu items:", error);
-  res.status(500).json({ error: "Internal server error" });
-}
 };
 
 
