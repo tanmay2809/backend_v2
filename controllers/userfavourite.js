@@ -154,35 +154,35 @@ const addToFavorites = async (req, res) => {
   }
 };
 const getFavoriteMenuItems = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const resId = req.params.resId;
+try {
+  const userId = req.params.userId;
+  const resId = req.params.resId;
 
-    // Find the user by ID
-    const user = await userProfile.findById(userId);
+  // Find the user by ID
+  const user = await userProfile.findById(userId);
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    // Check if the restaurant exists in user's favorites
-    const favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId.toString() === resId);
-
-    if (!favoriteRestaurant) {
-      const favoriteMenuItems = [];
-      return res.status(404).json({ favoriteMenuItems });
-    }
-
-    // Fetch the favorite menu items for the user and populate the 'menuItems' field
-    const favoriteMenuItems = await MenuItem.find({
-      _id: { $in: favoriteRestaurant.menuItems }
-    });
-
-    res.status(200).json({ favoriteMenuItems });
-  } catch (error) {
-    console.error("Error fetching favorite menu items:", error);
-    res.status(500).json({ error: "Internal server error" });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
   }
+
+  // Check if the restaurant exists in user's favorites
+  const favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId && favorite.resId.toString() === resId);
+
+  if (!favoriteRestaurant) {
+    const favoriteMenuItems = [];
+    return res.status(404).json({ favoriteMenuItems });
+  }
+
+  // Fetch the favorite menu items for the user and populate the 'menuItems' field
+  const favoriteMenuItems = await MenuItem.find({
+    _id: { $in: favoriteRestaurant.menuItems }
+  });
+
+  res.status(200).json({ favoriteMenuItems });
+} catch (error) {
+  console.error("Error fetching favorite menu items:", error);
+  res.status(500).json({ error: "Internal server error" });
+}
 };
 
 
