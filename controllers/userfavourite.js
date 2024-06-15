@@ -171,9 +171,7 @@ try {
   }
 
   // Check if the restaurant exists in user's favorites
-  const favoriteRestaurant = user.favoriteMenuItems.find(favorite => 
-    favorite.resId && favorite.resId.equals(mongoose.Types.ObjectId(resId))
-  );
+  let favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId === String(resId));
 
   if (!favoriteRestaurant) {
     return res.status(404).json({ favoriteMenuItems: [] });
