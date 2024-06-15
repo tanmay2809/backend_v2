@@ -23,14 +23,27 @@ const addToFavorites = async (req, res) => {
       return res.status(404).json({ error: "Menu item not found" });
     }
 
-    // Check if the menu item is already in user's favorites
-    const index = user.favoriteMenuItems.indexOf(menuItemId);
-    if (index === -1) {
-      // Menu item not found in favorites, add it
-      user.favoriteMenuItems.push(menuItemId);
-    } else {
-      // Menu item found in favorites, remove it
-      user.favoriteMenuItems.splice(index, 1);
+
+    const favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId.toString() === resId);
+
+    if (!favoriteRestaurant) {
+      user.favoriteMenuItems.push({
+        resId: resId,
+        menuItems: [menuItemId]
+      });
+    }
+    else {
+      const menuItemIndex = favoriteRestaurant.menuItems.indexOf(menuItemId);
+
+      if (menuItemIndex === -1) {
+        favoriteRestaurant.menuItems.push(menuItemId);
+      } else {
+        favoriteRestaurant.menuItems.splice(menuItemIndex, 1);
+
+        if (favoriteRestaurant.menuItems.length === 0) {
+          user.favoriteMenuItems = user.favoriteMenuItems.filter(favorite => favorite.resId.toString() !== resId);
+        }
+      }
     }
 
     await user.save();
@@ -143,6 +156,7 @@ const addToFavorites = async (req, res) => {
 const getFavoriteMenuItems = async (req, res) => {
   try {
     const userId = req.params.userId;
+    const resId = req.params.resId;
 
     // Find the user by ID
     const user = await userProfile.findById(userId);
@@ -151,10 +165,18 @@ const getFavoriteMenuItems = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Fetch the favorite menu items for the user and populate the 'menu' field
+    // Check if the restaurant exists in user's favorites
+    const favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId.toString() === resId);
+
+    if (!favoriteRestaurant) {
+      const favoriteMenuItems = [];
+      return res.status(404).json({ favoriteMenuItems });
+    }
+
+    // Fetch the favorite menu items for the user and populate the 'menuItems' field
     const favoriteMenuItems = await MenuItem.find({
-      _id: { $in: user.favoriteMenuItems },
-    })
+      _id: { $in: favoriteRestaurant.menuItems }
+    });
 
     res.status(200).json({ favoriteMenuItems });
   } catch (error) {

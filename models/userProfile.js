@@ -41,11 +41,17 @@ const userProfile = new mongoose.Schema({
       ref: "menuItem",
     },
   ],
+  // favoriteMenuItems: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: "menuItem",
+  //   },
+  // ],
   favoriteMenuItems: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "menuItem",
-    },
+      resId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant' },
+      menuItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MenuItem' }]
+    }
   ]
 });
 
