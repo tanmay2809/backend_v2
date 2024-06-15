@@ -24,7 +24,7 @@ const addToFavorites = async (req, res) => {
     }
 
 
-    const favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId.toString() === resId);
+      let favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId === String(resId));
 
     if (!favoriteRestaurant) {
       user.favoriteMenuItems.push({
