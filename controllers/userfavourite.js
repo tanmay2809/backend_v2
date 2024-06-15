@@ -158,6 +158,11 @@ try {
   const userId = req.params.userId;
   const resId = req.params.resId;
 
+  // Validate that userId and resId are provided
+  if (!userId || !resId) {
+    return res.status(400).json({ error: "User ID and Restaurant ID are required" });
+  }
+
   // Find the user by ID
   const user = await userProfile.findById(userId);
 
@@ -166,11 +171,12 @@ try {
   }
 
   // Check if the restaurant exists in user's favorites
-  const favoriteRestaurant = user.favoriteMenuItems.find(favorite => favorite.resId && favorite.resId.toString() === resId);
+  const favoriteRestaurant = user.favoriteMenuItems.find(favorite => 
+    favorite.resId && favorite.resId.equals(mongoose.Types.ObjectId(resId))
+  );
 
   if (!favoriteRestaurant) {
-    const favoriteMenuItems = [];
-    return res.status(404).json({ favoriteMenuItems });
+    return res.status(404).json({ favoriteMenuItems: [] });
   }
 
   // Fetch the favorite menu items for the user and populate the 'menuItems' field
