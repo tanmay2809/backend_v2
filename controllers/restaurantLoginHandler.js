@@ -10,6 +10,7 @@ const userProfile = require("../models/userProfile");
 const analytics = require("../models/analytics");
 const customerRecord = require("../models/customerRecord");
 const PaymentOption = require("../models/paymentOption");
+const visitorsRecord = require("../models/visitorsRecord");
 
 const registerRestaurant = async (req, res) => {
   try {
@@ -176,7 +177,8 @@ const getRestaurantDetailsById = async (req, res) => {
       .populate("menu")
       .populate("totalCustomersData")
       .populate("customerData")
-      .populate("recommendationRecord");
+      .populate("recommendationRecord")
+      .populate("visitorsRecord");
 
     if (!restaurant) {
       return res.status(404).json({
@@ -188,6 +190,17 @@ const getRestaurantDetailsById = async (req, res) => {
     await Promise.all(
       restaurant.totalCustomersData.map(async (tid, index) => {
         restaurant.totalCustomersData[index] = await analytics
+          .findById(tid._id)
+          .populate({
+            path: "userId",
+          });
+      })
+    );
+
+    // Populate userId field for each visitor
+    await Promise.all(
+      restaurant.visitorsRecord.map(async (tid, index) => {
+        restaurant.visitorsRecord[index] = await visitorsRecord
           .findById(tid._id)
           .populate({
             path: "userId",
