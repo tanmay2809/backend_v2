@@ -32,7 +32,7 @@ const updateVisitorsData = async(req,res) => {
 
                 const res = await restaurantDetails.findOneAndUpdate(
                     { _id: restaurantId },
-                    { $push: { customerData: newRecord._id } },
+                    { $push: { visitorsRecord: newRecord._id } },
                     { new: true }
                 );
             }
