@@ -127,6 +127,16 @@ businessType:{
       ref: "recommendationRecord",
     },
   ],
+  visitorsCount: {
+    type:Number,
+    default:0,
+  },
+  visitorsRecord : [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "visitorsRecord",
+    },
+  ]
 });
 
 const RestaurantDetails = mongoose.model(
